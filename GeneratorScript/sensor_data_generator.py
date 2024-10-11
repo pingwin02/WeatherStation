@@ -15,9 +15,9 @@ def generate_sensor_data(sensor_id):
     sensor_name = SENSOR_NAMES[sensor_id % len(SENSOR_NAMES)]
     sensor_value = random.randint(SENSOR_RANGES[sensor_name][0], SENSOR_RANGES[sensor_name][1])
     sensor_data = {
-        "Name": sensor_name,
-        "SensorNumber": sensor_id,
-        "SensorValue": sensor_value
+        "name": sensor_name,
+        "number": sensor_id,
+        "value": sensor_value
     }
     return json.dumps(sensor_data)
 

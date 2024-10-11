@@ -43,12 +43,22 @@ public class SensorService
             .FirstOrDefaultAsync();
     }
 
-    public async Task CreateAsync(Sensor newSensor) =>
+    public async Task CreateAsync(Sensor newSensor) {
+        newSensor.CreatedAt = DateTime.UtcNow;
         await _sensorsCollection.InsertOneAsync(newSensor);
+    }
 
-    public async Task UpdateAsync(string id, Sensor updatedSensor) =>
-        await _sensorsCollection.ReplaceOneAsync(x => x.Id == id, updatedSensor);
+    public async Task UpdateAsync(string id, Sensor updatedSensor)
+    {
+        var existingSensor = await _sensorsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
+        if (existingSensor != null)
+        {
+            // Set the updated properties without changing CreatedAt
+            updatedSensor.CreatedAt = existingSensor.CreatedAt; // Keep the original CreatedAt value
+            await _sensorsCollection.ReplaceOneAsync(x => x.Id == id, updatedSensor);
+        }
+    }
     public async Task RemoveAsync(string id) =>
         await _sensorsCollection.DeleteOneAsync(x => x.Id == id);
 }
