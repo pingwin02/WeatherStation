@@ -6,10 +6,14 @@ using MongoDB.Driver;
 public class SensorService
 {
     private readonly IMongoCollection<Sensor> _sensorsCollection;
+    private readonly ILogger _logger;
 
     public SensorService(
-        IOptions<SensorDatabaseSettings> weatherStationDatabaseSettings)
+        IOptions<SensorDatabaseSettings> weatherStationDatabaseSettings,
+        ILogger<SensorService> logger)
     {
+        _logger = logger;
+        _logger.LogInformation("SensorService started");
         var mongoClient = new MongoClient(
             weatherStationDatabaseSettings.Value.ConnectionString);
 
@@ -25,6 +29,19 @@ public class SensorService
 
     public async Task<Sensor?> GetAsync(string id) =>
         await _sensorsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
+    
+    public async Task<Sensor?> GetMostRecentSensorByNumberAsync(int sensorNumber)
+    {
+        if (sensorNumber < 1 || sensorNumber > 16)
+        {
+            throw new ArgumentOutOfRangeException(nameof(sensorNumber), "Sensor number must be between 1 and 16.");
+        }
+
+        return await _sensorsCollection
+            .Find(sensor => sensor.SensorNumber == sensorNumber)
+            .SortByDescending(sensor => sensor.CreatedAt)
+            .FirstOrDefaultAsync();
+    }
 
     public async Task CreateAsync(Sensor newSensor) =>
         await _sensorsCollection.InsertOneAsync(newSensor);

@@ -28,6 +28,24 @@ public class SensorsController : ControllerBase
 
         return book;
     }
+    
+    [HttpGet("recent/{sensorNumber:int}")]
+    public async Task<ActionResult<Sensor>> GetMostRecentSensor(int sensorNumber)
+    {
+        try
+        {
+            var sensor = await _sensorService.GetMostRecentSensorByNumberAsync(sensorNumber);
+            if (sensor is null)
+            {
+                return NotFound();
+            }
+            return sensor;
+        }
+        catch (ArgumentOutOfRangeException ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 
     [HttpPost]
     public async Task<IActionResult> Post(Sensor newSensor)

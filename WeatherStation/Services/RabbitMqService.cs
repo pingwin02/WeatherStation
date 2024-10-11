@@ -13,12 +13,16 @@ public class RabbitMqService
     private readonly IModel _channel;
     private readonly string _queueName;
     private readonly SensorService _sensorService;
+    private readonly ILogger _logger;
+
 
     public RabbitMqService( 
         IOptions<RabbitMqConfiguration> rabbitMqConfiguration,
-        SensorService sensorService)
+        SensorService sensorService,
+        ILogger<RabbitMqService> logger)
     {
-        
+        _logger = logger;
+        _logger.LogInformation("RabbitMqService started");
         var factory = new ConnectionFactory()
         {
             HostName = rabbitMqConfiguration.Value.HostName,
@@ -38,7 +42,6 @@ public class RabbitMqService
             exclusive: false,
             autoDelete: false,
             arguments: null);
-        
         StartReceivingMessages();
     }
     

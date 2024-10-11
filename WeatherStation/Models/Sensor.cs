@@ -14,7 +14,15 @@ public class Sensor
     [JsonPropertyName("Name")]
     public string SensorName { get; set; } = null!;
 
-    public string SensorType { get; set; } = null!;
+    public int SensorNumber { get; set; }
     
-    public int SensorValue { get; set; }
+    public double SensorValue { get; set; }
+    
+    [BsonElement("created_at")]
+    [JsonPropertyName("created_at")]
+    public DateTime CreatedAt { get; private set; }
+    public Sensor()
+    {
+        CreatedAt = DateTime.UtcNow;
+    }
 }
