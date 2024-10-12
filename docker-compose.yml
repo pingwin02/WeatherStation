@@ -17,15 +17,13 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: "admin"
       MONGO_INITDB_ROOT_PASSWORD: "admin"
-    volumes:
-      - ./init-mongo.js:/docker-entrypoint-initdb.d/init-mongo.js
   
   
   backend:
     image: weatherstation
     build:
       context: .
-      dockerfile: WeatherStation/Dockerfile
+      dockerfile: WeatherStationBackend/Dockerfile
     ports:
       - "8000:8000"
     depends_on:

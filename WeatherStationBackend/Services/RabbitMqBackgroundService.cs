@@ -1,4 +1,4 @@
-namespace WeatherStation.Services;
+namespace WeatherStationBackend.Services;
 
 using Microsoft.Extensions.Hosting;
 using System.Threading;

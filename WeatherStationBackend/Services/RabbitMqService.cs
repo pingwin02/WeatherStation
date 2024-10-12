@@ -3,22 +3,23 @@ using Microsoft.Extensions.Options;
 using MongoDB.Bson.Serialization;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using WeatherStation.Models;
+using WeatherStationBackend.Configuration;
+using WeatherStationBackend.Models;
 
-namespace WeatherStation.Services;
+namespace WeatherStationBackend.Services;
 
 public class RabbitMqService
 {
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private readonly string _queueName;
-    private readonly SensorService _sensorService;
+    private readonly DataService _dataService;
     private readonly ILogger _logger;
 
 
     public RabbitMqService( 
         IOptions<RabbitMqConfiguration> rabbitMqConfiguration,
-        SensorService sensorService,
+        DataService dataService,
         ILogger<RabbitMqService> logger)
     {
         _logger = logger;
@@ -34,7 +35,7 @@ public class RabbitMqService
         _channel = _connection.CreateModel();
         
         _queueName = rabbitMqConfiguration.Value.QueueName;
-        _sensorService = sensorService;
+        _dataService = dataService;
 
         _channel.QueueDeclare(
             queue: _queueName,
@@ -55,9 +56,9 @@ public class RabbitMqService
             
             try
             {
-                var sensor = BsonSerializer.Deserialize<Sensor>(message);
-                await _sensorService.CreateAsync(sensor);
-                Console.WriteLine("Received and saved sensor data: {0}", sensor.SensorName);
+                var data = BsonSerializer.Deserialize<DataEntity>(message);
+                Console.WriteLine("Received sensor data: {0}", data);
+                await _dataService.AddAsync(data);
             }
             catch (Exception ex)
             {

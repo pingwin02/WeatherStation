@@ -12,15 +12,25 @@
 9. Refresh `http://localhost:8000/api/sensors` in your browser to see the results
 10. To stop the app, run `docker compose down -v` in the root directory. It will remove the database volume as well.
 
-## NOTE
-When first starting the app, the database will be populated with example 16 sensor values. 
 
 ## Endpoints:
 
 ### Sensors:
-- GET `/api/sensors` - get all sensors
-- GET `/api/sensors/{id}` - get sensor by id
+
+- GET `/api/sensors` - get a list of all sensors
+- GET `/api/sensors/{id}` - get information about a specific sensor by its ID
 - POST `/api/sensors` - create a new sensor
-- PUT `/api/sensors/{id}` - update sensor by id
-- DELETE `/api/sensors/{id}` - delete sensor by id
-- GET `/api/sensors/recent/{number}` - get most recent sensor value by its number (1 - 16)
+- PATCH `/api/sensors/{id}` - update a specific sensor by its ID
+- DELETE `/api/sensors/{id}` - delete a specific sensor by its ID
+
+### Data:
+
+- GET `/api/data` - get all data
+- GET `/api/sensors/{id}/data` - get all data for a specific sensor by its ID
+- GET `/api/sensors/{id}/data/recent` - get the most recent data for a specific sensor by its ID
+
+### Swagger:
+
+- `/api/swagger` - Swagger documentation
+
+
