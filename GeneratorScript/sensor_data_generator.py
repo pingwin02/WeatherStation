@@ -4,7 +4,8 @@ import time
 import random
 import requests
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor
+from typing import List
+from concurrent.futures import ThreadPoolExecutor, Future
 import threading
 
 RABBITMQ_HOST = 'localhost'
@@ -14,37 +15,42 @@ RABBITMQ_PASSWORD = 'admin'
 
 API_BASE_URL = 'http://localhost:8000/api/sensors'
 
-SENSOR_TYPES = ["Temperature", "Humidity", "Pressure", "WindSpeed"]
+TYPE1 = "Temperature"
+TYPE2 = "Humidity"
+TYPE3 = "Pressure"
+TYPE4 = "WindSpeed"
+
+SENSOR_TYPES = [TYPE1, TYPE2, TYPE3, TYPE4]
 SENSORS_FOR_EACH_TYPE = 4
 
 SENSOR_RANGES = {
-    "Temperature": (-20, 50),
-    "Humidity": (0, 100),
-    "Pressure": (900, 1100),
-    "WindSpeed": (0, 150)
+    TYPE1: (-20, 50),
+    TYPE2: (0, 100),
+    TYPE3: (900, 1100),
+    TYPE4: (0, 150)
 }
 
 DATA_GENERATION_RATE = {
-    "Temperature": 5,
-    "Humidity": 2,
-    "Pressure": 3,
-    "WindSpeed": 4
+    TYPE1: 5,
+    TYPE2: 2,
+    TYPE3: 3,
+    TYPE4: 4
 }
 
 stop_simulation = threading.Event()
 
 class Sensor:
-    def __init__(self, sensor_id=None, sensor_type=None, sensor_name=None):
+    def __init__(self, sensor_id: str = None, sensor_type: str = None, sensor_name: str = None):
         self.sensor_id = sensor_id
         self.sensor_type = sensor_type
         self.sensor_name = sensor_name
 
     @staticmethod
-    def calculate_sleep_time(sensor_type):
+    def calculate_sleep_time(sensor_type: str) -> float:
         rate_per_minute = DATA_GENERATION_RATE[sensor_type]
         return 60 / rate_per_minute
 
-    def generate_sensor_data(self):
+    def generate_sensor_data(self) -> str:
         sensor_value = random.uniform(SENSOR_RANGES[self.sensor_type][0], SENSOR_RANGES[self.sensor_type][1])
         sensor_data = {
             "sensorId": str(self.sensor_id),
@@ -53,7 +59,7 @@ class Sensor:
         }
         return json.dumps(sensor_data)
 
-    def send_data(self):
+    def send_data(self) -> None:
         sleep_time = self.calculate_sleep_time(self.sensor_type)
         initial_delay = random.uniform(0.5, 2)
         time.sleep(initial_delay)
@@ -78,7 +84,7 @@ class Sensor:
                     connection.close()
 
     @staticmethod
-    def create(sensor_name, sensor_type):
+    def create(sensor_name: str, sensor_type: str) -> None:
         sensor_data = {
             "name": sensor_name,
             "type": sensor_type
@@ -88,7 +94,7 @@ class Sensor:
             raise Exception(f"Failed to create sensor {response}")
 
     @staticmethod
-    def get_all_sensors():
+    def get_all_sensors() -> List[dict]:
         response = requests.get(API_BASE_URL)
         if response.status_code == 200:
             return response.json()
@@ -96,7 +102,7 @@ class Sensor:
             raise Exception(f"Failed to get all sensors {response}")
 
     @staticmethod
-    def delete_all_sensors():
+    def delete_all_sensors() -> None:
         print("Deleting remaining sensors...")
         all_sensors = Sensor.get_all_sensors()
         for sensor in all_sensors:
@@ -105,7 +111,7 @@ class Sensor:
             if response.status_code != 204:
                 raise Exception(f"Failed to delete sensor {sensor_id} {response}")
 
-def main():
+def main() -> None:
     Sensor.delete_all_sensors()
 
     ready = input("Are you ready to start the simulation? (y/n): ")
@@ -114,13 +120,12 @@ def main():
         return
 
     print("Creating sensors...")
-    sensors_info = []
+    sensors_info: List[Sensor] = []
     for sensor_type in SENSOR_TYPES:
         for i in range(SENSORS_FOR_EACH_TYPE):
             sensor_name = f"{sensor_type[:4].lower()}#{i+1}"
             Sensor.create(sensor_name, sensor_type)
 
-    
     all_sensors = Sensor.get_all_sensors()
     for sensor_data in all_sensors:
         sensor = Sensor(sensor_data["id"], sensor_data["type"], sensor_data["name"])
@@ -128,7 +133,7 @@ def main():
 
     print("Starting simulation...")
     with ThreadPoolExecutor(max_workers=16) as executor:
-        futures = {executor.submit(sensor.send_data): sensor for sensor in sensors_info}
+        futures: dict[Future, Sensor] = {executor.submit(sensor.send_data): sensor for sensor in sensors_info}
 
         try:
             while not stop_simulation.is_set():
