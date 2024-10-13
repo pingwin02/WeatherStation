@@ -22,6 +22,7 @@ TYPE4 = "WindSpeed"
 
 SENSOR_TYPES = [TYPE1, TYPE2, TYPE3, TYPE4]
 SENSORS_FOR_EACH_TYPE = 4
+ALL_SENSORS = SENSORS_FOR_EACH_TYPE * len(SENSOR_TYPES)
 
 SENSOR_RANGES = {
     TYPE1: (-20, 50),
@@ -61,7 +62,7 @@ class Sensor:
 
     def send_data(self) -> None:
         sleep_time = self.calculate_sleep_time(self.sensor_type)
-        initial_delay = random.uniform(0.5, 2)
+        initial_delay = random.uniform(0, sleep_time)
         time.sleep(initial_delay)
         
         while not stop_simulation.is_set():
@@ -132,7 +133,7 @@ def main() -> None:
         sensors_info.append(sensor)
 
     print("Starting simulation...")
-    with ThreadPoolExecutor(max_workers=16) as executor:
+    with ThreadPoolExecutor(max_workers=ALL_SENSORS) as executor:
         futures: dict[Future, Sensor] = {executor.submit(sensor.send_data): sensor for sensor in sensors_info}
 
         try:
