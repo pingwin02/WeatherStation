@@ -29,6 +29,10 @@
 - GET `/api/sensors/{id}/data` - get all data for a specific sensor by its ID
 - GET `/api/sensors/{id}/data/recent` - get the most recent data for a specific sensor by its ID
 
+### Tokens:
+
+- GET `/api/tokens/balance/{sensor_address}` - get a list of all tokens for sensor
+
 ### Swagger:
 
 - `/api/swagger` - Swagger documentation

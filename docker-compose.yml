@@ -33,3 +33,12 @@ services:
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_PORT: "5672"
   
+  frontend:
+    build:
+      context: .
+      dockerfile: weather-station-frontend/Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+  
