@@ -18,4 +18,8 @@ public class SensorEntity
     [BsonElement("type")]
     [JsonPropertyName("type")]
     public string? Type { get; set; }
+    
+    [BsonElement("token_address")]
+    [JsonPropertyName("token_address")]
+    public string? TokenAddress { get; set; }
 }

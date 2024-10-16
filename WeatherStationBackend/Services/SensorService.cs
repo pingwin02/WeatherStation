@@ -55,6 +55,7 @@ public class SensorService
             Id = ObjectId.GenerateNewId().ToString(),
             Name = newSensor.Name,
             Type = newSensor.Type,
+            TokenAddress = newSensor.TokenAddress,
         };
         
         await _sensorsCollection.InsertOneAsync(sensorToInsert);

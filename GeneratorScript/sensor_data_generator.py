@@ -20,6 +20,25 @@ TYPE2 = "Humidity"
 TYPE3 = "Pressure"
 TYPE4 = "WindSpeed"
 
+ADDRESSES = [
+    "0xB59aB3f970befDd1e1B009376083FB69c339D5ba",
+    "0x16f870C925Fe2399786d318B627E9c159e13FD38",
+    "0x5E5Ba4Ae271De64E839421701Ec4420D32CCAf0D",
+    "0xfa48f36BA6Cc563eEf20eCA4eDBfc92d29b521cB",
+    "0xaD04B6f85210F7BAc634972e32fa0E99C487B1f0",
+    "0xc6B43723dC57E444Ee3144E5Db34453bA4b7fe58",
+    "0xD65bb6b3B2B492feAf6d176721b5950B39b2EF5d",
+    "0xCed537Ef904039c5f1218069b10992D5727B4042",
+    "0xDEE8acEA1E0475cbA90300DabDbf9393dD200Ab6",
+    "0xBADC41713A33E692c3A8f0688184d42c314AE20f",
+    "0x6ffB0279E0C65990eE1aF6CeBA6903296fa960a7",
+    "0x9108f1907295Aec304FE9d23B4f022BE9e509928",
+    "0xBD213a69d31F225Bf20442782634ed74F4655B7a",
+    "0x8c2683e6a9dE0B84cA9AEE43C6a0F8fa40c99113",
+    "0x16ACba43Ff56D02E2c583A6803d21045068677DE",
+    "0xDB54b838Fe344527AF40791bbDbea02cce1e0978"
+]
+
 SENSOR_TYPES = [TYPE1, TYPE2, TYPE3, TYPE4]
 SENSORS_FOR_EACH_TYPE = 4
 ALL_SENSORS = SENSORS_FOR_EACH_TYPE * len(SENSOR_TYPES)
@@ -85,10 +104,11 @@ class Sensor:
                     connection.close()
 
     @staticmethod
-    def create(sensor_name: str, sensor_type: str) -> None:
+    def create(sensor_name: str, sensor_type: str, token_address: str) -> None:
         sensor_data = {
             "name": sensor_name,
-            "type": sensor_type
+            "type": sensor_type,
+            "token_address": token_address,
         }
         response = requests.post(API_BASE_URL, json=sensor_data)
         if response.status_code != 201:
@@ -122,10 +142,12 @@ def main() -> None:
 
     print("Creating sensors...")
     sensors_info: List[Sensor] = []
+    iterator = 0
     for sensor_type in SENSOR_TYPES:
         for i in range(SENSORS_FOR_EACH_TYPE):
             sensor_name = f"{sensor_type[:4].lower()}#{i+1}"
-            Sensor.create(sensor_name, sensor_type)
+            Sensor.create(sensor_name, sensor_type, ADDRESSES[iterator])
+            iterator += 1
 
     all_sensors = Sensor.get_all_sensors()
     for sensor_data in all_sensors:
