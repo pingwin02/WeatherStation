@@ -12,24 +12,22 @@ namespace WeatherStationBackend.Controllers
     public class TokenController : ControllerBase
     {
         private readonly TokenService _tokenService;
+        private readonly DataService _dataService;
         private readonly ILogger<TokenController> _logger;
         const int Decimals = 6;
 
-        public TokenController(TokenService tokenService, ILogger<TokenController> logger)
+        public TokenController(TokenService tokenService, ILogger<TokenController> logger, DataService dataService)
         {
             _tokenService = tokenService;
             _logger = logger;
+            _dataService = dataService;
         }
 
-        // GET: api/token/balance/{sensorAddress}
-        [HttpGet("balance/{sensorAddress}")]
-        public async Task<IActionResult> GetBalance(string sensorAddress)
+        // GET: api/tokens/{id}
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetBalance(string id)
         {
-            if (string.IsNullOrEmpty(sensorAddress))
-            {
-                _logger.LogWarning("Invalid sensor address provided.");
-                return BadRequest("Sensor address is required.");
-            }
+            var sensorAddress = await _dataService.GetSensorById(id).Address;
 
             try
             {
