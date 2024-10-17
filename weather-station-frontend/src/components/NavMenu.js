@@ -1,0 +1,42 @@
+import React from 'react';
+import { Link } from 'react-router-dom';
+
+function NavMenu() {
+  return (
+    <nav style={styles.navbar}>
+      <ul style={styles.navList}>
+        <li style={styles.navItem}>
+          <Link to="/" style={styles.navLink}>Home</Link>
+        </li>
+        <li style={styles.navItem}>
+          <Link to="/sensors" style={styles.navLink}>Sensors</Link>
+        </li>
+        <li style={styles.navItem}>
+          <Link to="/tokens" style={styles.navLink}>Tokens</Link>
+        </li>
+      </ul>
+    </nav>
+  );
+}
+
+const styles = {
+  navbar: {
+    backgroundColor: '#333',
+    padding: '1rem',
+  },
+  navList: {
+    listStyleType: 'none',
+    display: 'flex',
+    gap: '1rem',
+  },
+  navItem: {
+    margin: 0,
+  },
+  navLink: {
+    color: 'white',
+    textDecoration: 'none',
+    fontSize: '1.2rem',
+  },
+};
+
+export default NavMenu;
