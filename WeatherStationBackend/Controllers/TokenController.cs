@@ -1,47 +1,58 @@
 using Microsoft.AspNetCore.Mvc;
-using System.Threading.Tasks;
-using WeatherStationBackend.Services;
-using Microsoft.Extensions.Logging;
-using System.Numerics;
 using Nethereum.Web3;
+using WeatherStationBackend.Services;
 
-namespace WeatherStationBackend.Controllers
+namespace WeatherStationBackend.Controllers;
+
+[ApiController]
+[Route("api/sensors")]
+public class TokenController : ControllerBase
 {
-    [ApiController]
-    [Route("api/tokens")]
-    public class TokenController : ControllerBase
+    private const int Decimals = 6;
+    private readonly ILogger<TokenController> _logger;
+    private readonly SensorService _sensorService;
+    private readonly TokenService _tokenService;
+
+    public TokenController(TokenService tokenService, ILogger<TokenController> logger, SensorService sensorService)
     {
-        private readonly TokenService _tokenService;
-        private readonly DataService _dataService;
-        private readonly ILogger<TokenController> _logger;
-        const int Decimals = 6;
+        _tokenService = tokenService;
+        _logger = logger;
+        _sensorService = sensorService;
+    }
 
-        public TokenController(TokenService tokenService, ILogger<TokenController> logger, DataService dataService)
+    /// <summary>
+    ///     Retrieves the token balance for a given sensor ID.
+    /// </summary>
+    /// <param name="id">The unique identifier of the sensor.</param>
+    /// <returns>A JSON object containing the sensor's wallet address and balance in tokens.</returns>
+    /// <response code="200">Balance successfully retrieved.</response>
+    /// <response code="400">Invalid sensor ID format.</response>
+    /// <response code="404">Sensor not found.</response>
+    /// <response code="500">Internal server error while retrieving balance.</response>
+    [HttpGet("{id}/tokens")]
+    public async Task<IActionResult> GetBalance(string id)
+    {
+        try
         {
-            _tokenService = tokenService;
-            _logger = logger;
-            _dataService = dataService;
+            var sensor = await _sensorService.GetAsync(id);
+            var sensorAddress = sensor.WalletAddress;
+
+            var balance = await _tokenService.GetBalanceAsync(sensorAddress);
+            var tokenAmount = Web3.Convert.FromWei(balance, Decimals);
+
+            return Ok(new { SensorAddress = sensorAddress, Balance = tokenAmount });
         }
-
-        // GET: api/tokens/{id}
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetBalance(string id)
+        catch (KeyNotFoundException)
         {
-            var sensorAddress = await _dataService.GetSensorById(id).Address;
-
-            try
-            {
-                BigInteger balance = await _tokenService.GetBalanceAsync(sensorAddress);
-                var tokenAmount = Web3.Convert.FromWei(balance, Decimals);
-
-                _logger.LogInformation($"Balance for sensor {sensorAddress} is {tokenAmount} tokens.");
-                return Ok(new { SensorAddress = sensorAddress, Balance = tokenAmount });
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Error retrieving balance for sensor {sensorAddress}: {ex.Message}");
-                return StatusCode(500, "Error retrieving balance.");
-            }
+            return NotFound();
+        }
+        catch (FormatException)
+        {
+            return BadRequest("Invalid sensor ID format.");
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, "Error retrieving balance.");
         }
     }
 }

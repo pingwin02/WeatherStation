@@ -104,11 +104,11 @@ class Sensor:
                     connection.close()
 
     @staticmethod
-    def create(sensor_name: str, sensor_type: str, token_address: str) -> None:
+    def create(sensor_name: str, sensor_type: str, wallet_address: str) -> None:
         sensor_data = {
             "name": sensor_name,
             "type": sensor_type,
-            "token_address": token_address,
+            "wallet_address": wallet_address,
         }
         response = requests.post(API_BASE_URL, json=sensor_data)
         if response.status_code != 201:

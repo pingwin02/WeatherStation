@@ -1,74 +1,73 @@
-using Nethereum.Web3;
-using Nethereum.Contracts;
-using Nethereum.Web3.Accounts;
 using System.Numerics;
 using Microsoft.Extensions.Options;
 using Nethereum.ABI.FunctionEncoding.Attributes;
+using Nethereum.Contracts;
+using Nethereum.Web3;
+using Nethereum.Web3.Accounts;
 using WeatherStationBackend.Configuration;
 
+namespace WeatherStationBackend.Services;
 
-namespace WeatherStationBackend.Services
+[Function("transfer", "bool")]
+public class TransferFunction : FunctionMessage
 {
-    
-    [Function("transfer", "bool")]
-    public class TransferFunction : FunctionMessage
+    [Parameter("address", "_to")] public string To { get; set; }
+
+    [Parameter("uint256", "_value", 2)] public BigInteger TokenAmount { get; set; }
+}
+
+public class TokenService
+{
+    private readonly string _abi;
+    private readonly BigInteger _award;
+    private readonly string _contractAddress;
+    private readonly ILogger<TokenService> _logger;
+    private readonly Web3 _web3;
+
+    public TokenService(
+        IOptions<TokenSettings> tokenSettings,
+        ILogger<TokenService> logger)
     {
-        [Parameter("address", "_to", 1)]
-        public string To { get; set; }
-        [Parameter("uint256", "_value", 2)]
-        public BigInteger TokenAmount { get; set; }
+        var account = new Account(tokenSettings.Value.PrivateKey);
+        _web3 = new Web3(account, tokenSettings.Value.InfuraUrl);
+        _contractAddress = tokenSettings.Value.ContractAddress;
+        _abi = tokenSettings.Value.Abi;
+        _award = BigInteger.Parse(tokenSettings.Value.Award);
+        _logger = logger;
+        _logger.LogInformation("TokenService initialized");
     }
-    
-    public class TokenService
+
+    public async Task<BigInteger> GetBalanceAsync(string address)
     {
-        private readonly Web3 _web3;
-        private readonly ILogger<TokenService> _logger;
-        private readonly string _contractAddress;
-        private readonly string _abi;
-        private readonly int _decimals = 6;
+        var contract = _web3.Eth.GetContract(_abi, _contractAddress);
+        var balanceOfFunction = contract.GetFunction("balanceOf");
+        var balance = await balanceOfFunction.CallAsync<BigInteger>(address);
+        return balance;
+    }
 
-        public TokenService(
-            IOptions<TokenSettings> tokenSettings,
-            ILogger<TokenService> logger)
+    public async Task<bool> TransferTokensAsync(string toAddress, BigInteger? amount = null)
+    {
+        try
         {
-            
-            
-            var account = new Account(tokenSettings.Value.PrivateKey);
-            _web3 = new Web3(account, tokenSettings.Value.InfuraUrl);
-            _contractAddress = tokenSettings.Value.ContractAddress;
-            _abi = tokenSettings.Value.Abi;
-            _logger = logger;
-            _logger.LogInformation("TokenService initialized");
-        }
-
-        public async Task<BigInteger> GetBalanceAsync(string address)
-        {
-            var contract = _web3.Eth.GetContract(_abi, _contractAddress);
-            var balanceOfFunction = contract.GetFunction("balanceOf");
-            var balance = await balanceOfFunction.CallAsync<BigInteger>(address);
-            return balance;
-        }
-
-        public async Task<bool> TransferTokensAsync(string toAddress, BigInteger amount)
-        {
-            try
+            _logger.LogInformation($"Initiating transfer to {toAddress} with amount {amount ?? _award}");
+            var transferHandler = _web3.Eth.GetContractTransactionHandler<TransferFunction>();
+            var transfer = new TransferFunction
             {
-                var transferHandler = _web3.Eth.GetContractTransactionHandler<TransferFunction>();
-                var transfer = new TransferFunction
-                {
-                    To = toAddress,
-                    TokenAmount = amount
-                };
+                To = toAddress,
+                TokenAmount = amount ?? _award
+            };
 
-                var transactionReceipt = await transferHandler.SendRequestAndWaitForReceiptAsync(_contractAddress, transfer);
-                _logger.LogInformation($"Transferred {amount} tokens to {toAddress}");
-                return transactionReceipt.Status.Value == 1;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError($"Failed to transfer tokens: {ex.Message}");
-                return false;
-            }
+            _logger.LogInformation("Sending transaction...");
+            var transactionReceipt =
+                await transferHandler.SendRequestAndWaitForReceiptAsync(_contractAddress, transfer);
+
+            _logger.LogInformation($"Transaction status: {transactionReceipt.Status.Value}");
+            return transactionReceipt.Status.Value == 1;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError($"Failed to transfer tokens: {ex.Message}");
+            return false;
         }
     }
 }
