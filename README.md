@@ -29,8 +29,38 @@
 - GET `/api/sensors/{id}/data` - get all data for a specific sensor by its ID
 - GET `/api/sensors/{id}/data/recent` - get the most recent data for a specific sensor by its ID
 
+### Tokens:
+
+- GET `/api/sensors/{id}/tokens` - get the token balance for a specific sensor by its ID
+
 ### Swagger:
 
 - `/api/swagger` - Swagger documentation
+
+# Blockchain Module Setup
+
+## Metamask Configuration
+1. **Set up Holesky testnet**  
+   In Metamask, add the Holesky testnet by providing the necessary network details.
+
+2. **Receive Test ETH**  
+   Use a Holesky testnet faucet to receive test ETH, for example, from the [Ethereum Holešky Faucet](https://cloud.google.com/application/web3/faucet/ethereum/holesky).
+
+3. **Import Sensor Coins**  
+   To view Sensor Coins balance, import the tokens into Metamask by providing the contract address.
+
+## ERC-20 Smart Contract Deployment
+1. **Program Smart Contract**  
+   Use Solidity to program an ERC-20 smart contract.
+
+2. **Compile and Deploy**  
+   Use [Remix IDE](https://remix.ethereum.org/) to compile the smart contract and deploy it to the Holesky testnet.
+
+## Blockchain Network Access
+1. **Create Infura Account**  
+   Sign up at Infura and create a project to get your API key for blockchain access.
+
+## Monitoring
+- Use the [Etherscan Holesky Explorer](https://holesky.etherscan.io) to monitor transactions related to your deployed contract.
 
 

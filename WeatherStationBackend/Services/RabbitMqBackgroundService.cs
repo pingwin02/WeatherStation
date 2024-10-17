@@ -1,9 +1,5 @@
 namespace WeatherStationBackend.Services;
 
-using Microsoft.Extensions.Hosting;
-using System.Threading;
-using System.Threading.Tasks;
-
 public class RabbitMqBackgroundService : BackgroundService
 {
     private readonly RabbitMqService _rabbitMqService;
