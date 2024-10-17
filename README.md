@@ -29,8 +29,31 @@
 - GET `/api/sensors/{id}/data` - get all data for a specific sensor by its ID
 - GET `/api/sensors/{id}/data/recent` - get the most recent data for a specific sensor by its ID
 
+### Tokens:
+
+- GET `/api/tokens/{id}` - get sensor balance by its ID
+
 ### Swagger:
 
 - `/api/swagger` - Swagger documentation
+
+## Blockchain module:
+
+### Metamask 
+1. Set up Holesky testnet
+2. Receive test ETH, using faucet
+3. To see Sensor Coins balance, import tokens by providing contract address
+
+### ERC-20 Smart Contract
+Using [Remix](https://remix.ethereum.org/#lang=en&optimize=false&runs=200&evmVersion=null&version=soljson-v0.8.26+commit.8a97fa7a.js)
+1. Program smart contract in solidity
+2. Compile it and deploy to testnet
+
+### Access to blockchain network
+1. Create account at [Infura](https://app.infura.io/)
+2. Receive an API key 
+
+### Monitoring
+Go to [Ethrescan](https://holesky.etherscan.io/token/0xe99ddc1405e2a5c2c4d57642ea742706a9ddb750) to observe transactions
 
 
