@@ -1,8 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { getSensors, getRecentMeasurement } from '../services/sensorService';
+import FilterForm from './FilterForm';
 
 const SensorList = () => {
     const [sensors, setSensors] = useState([]);
+    const [filter, setFilter] = useState({
+        startDate: '',
+        endDate: '',
+        sensorType: '',
+        sensorInstance: ''
+    });
+    const [collapsed, setCollapsed] = useState({
+        Temperature: true,
+        WindSpeed: true,
+        Humidity: true,
+        Pressure: true
+    });
+
 
     useEffect(() => {
         const fetchData = async () => {
@@ -14,7 +28,8 @@ const SensorList = () => {
                 }
                 const sensorsWithData = await Promise.all(sensorData.map(async sensor => {
                     const recentData = await getRecentMeasurement(sensor.id);
-                    return { ...sensor, recentData };
+                    const average = 1;
+                    return { ...sensor, recentData, average };
                 }));
                 setSensors(sensorsWithData);
             } catch (error) {
@@ -26,16 +41,70 @@ const SensorList = () => {
         fetchData();
     }, []);
 
+    const toggleCollapse = (type) => {
+        setCollapsed(prevState => ({
+            ...prevState,
+            [type]: !prevState[type]
+        }));
+    };
+
+    // Filter sensors by type
+    const filterByType = (type) => {
+        return sensors.filter(sensor => sensor.type === type);
+    };
+
+    const renderSensorTable = (sensorType) => {
+        const filteredSensors = filterByType(sensorType);
+        return (
+            <table>
+                <thead>
+                    <tr>
+                        <th>Sensor Name</th>
+                        <th>Last Value</th>
+                        <th>Average (Last 100)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {filteredSensors.map(sensor => (
+                        <tr key={sensor.id}>
+                            <td>{sensor.name}</td>
+                            <td>{sensor.recentData ? sensor.recentData.value : 'No data available'}</td>
+                            <td>{sensor.average}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        );
+    };
+
     return (
         <div>
             <h1>Sensors</h1>
-            <ul>
-                {sensors.map(sensor => (
-                    <li key={sensor.id}>
-                        {sensor.name}: {sensor.recentData ? sensor.recentData.value : 'No data available'}
-                    </li>
-                ))}
-            </ul>
+            <FilterForm filter={filter} setFilter={setFilter} />
+            <div>
+                <h2 onClick={() => toggleCollapse('Temperature')}>
+                    Temperature {collapsed.Temperature ? '▼' : '▲'}
+                </h2>
+                {collapsed.Temperature && renderSensorTable('Temperature')}
+            </div>
+            <div>
+                <h2 onClick={() => toggleCollapse('WindSpeed')}>
+                    WindSpeed {collapsed.Wind ? '▼' : '▲'}
+                </h2>
+                {collapsed.WindSpeed && renderSensorTable('WindSpeed')}
+            </div>
+            <div>
+                <h2 onClick={() => toggleCollapse('Humidity')}>
+                    Humidity {collapsed.Other1 ? '▼' : '▲'}
+                </h2>
+                {collapsed.Humidity && renderSensorTable('Humidity')}
+            </div>
+            <div>
+                <h2 onClick={() => toggleCollapse('Pressure')}>
+                    Pressure {collapsed.Other2 ? '▼' : '▲'}
+                </h2>
+                {collapsed.Pressure && renderSensorTable('Pressure')}
+            </div>
         </div>
     );
 };

@@ -6,13 +6,13 @@ function NavMenu() {
     <nav style={styles.navbar}>
       <ul style={styles.navList}>
         <li style={styles.navItem}>
-          <Link to="/" style={styles.navLink}>Home</Link>
+          <Link to="/" style={styles.navLink}>Dashboard</Link>
         </li>
         <li style={styles.navItem}>
           <Link to="/sensors" style={styles.navLink}>Sensors</Link>
         </li>
         <li style={styles.navItem}>
-          <Link to="/tokens" style={styles.navLink}>Tokens</Link>
+          <Link to="/tokens" style={styles.navLink}>Token Balance</Link>
         </li>
       </ul>
     </nav>
