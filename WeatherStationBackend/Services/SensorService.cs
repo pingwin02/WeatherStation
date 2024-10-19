@@ -42,6 +42,17 @@ public class SensorService
         return sensor;
     }
 
+    public async Task<List<SensorEntity>> GetByTypeAsync(string type)
+    {
+        return await _sensorsCollection.Find(x => x.Type == type).ToListAsync();
+    }
+
+
+    public async Task<List<SensorEntity>> GetByNameAsync(string name)
+    {
+        return await _sensorsCollection.Find(x => x.Name == name).ToListAsync();
+    }
+
     public async Task<string> CreateAsync(SensorRequest newSensor)
     {
         if (!Enum.IsDefined(typeof(SensorType), newSensor.Type))
@@ -90,8 +101,13 @@ public class SensorService
         var sensor = await _sensorsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();
 
         if (sensor != null)
+        {
             await _sensorsCollection.DeleteOneAsync(x => x.Id == id);
+            _logger.LogInformation($"Sensor {id} removed.");
+        }
         else
+        {
             throw new KeyNotFoundException($"Sensor with id {id} not found.");
+        }
     }
 }

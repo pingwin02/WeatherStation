@@ -2,6 +2,7 @@ using System.Numerics;
 using Microsoft.Extensions.Options;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Contracts;
+using Nethereum.Util;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
 using WeatherStationBackend.Configuration;
@@ -45,7 +46,7 @@ public class TokenService
         return balance;
     }
 
-    public async Task<bool> TransferTokensAsync(string toAddress, BigInteger? amount = null)
+    public async Task TransferTokensAsync(string toAddress, BigInteger? amount = null)
     {
         try
         {
@@ -56,18 +57,22 @@ public class TokenService
                 To = toAddress,
                 TokenAmount = amount ?? _award
             };
+            transfer.GasPrice = Web3.Convert.ToWei(25, UnitConversion.EthUnit.Gwei);
+            var estimatedGas = await transferHandler.EstimateGasAsync(_contractAddress, transfer);
+            transfer.Gas = estimatedGas.Value;
 
             _logger.LogInformation("Sending transaction...");
             var transactionReceipt =
                 await transferHandler.SendRequestAndWaitForReceiptAsync(_contractAddress, transfer);
 
-            _logger.LogInformation($"Transaction status: {transactionReceipt.Status.Value}");
-            return transactionReceipt.Status.Value == 1;
+            var receiptHash = transactionReceipt.TransactionHash;
+            _logger.LogInformation($"Transaction hash: {receiptHash}");
+
+            _logger.LogInformation("Transfer successful");
         }
         catch (Exception ex)
         {
-            _logger.LogError($"Failed to transfer tokens: {ex.Message}");
-            return false;
+            _logger.LogError($"Failed to transfer tokens to {toAddress}: {ex.Message}");
         }
     }
 }

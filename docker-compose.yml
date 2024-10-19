@@ -18,7 +18,6 @@ services:
       MONGO_INITDB_ROOT_USERNAME: "admin"
       MONGO_INITDB_ROOT_PASSWORD: "admin"
   
-  
   backend:
     image: weatherstation
     build:
@@ -32,4 +31,6 @@ services:
     environment:
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_PORT: "5672"
+    volumes:
+      - ./WeatherStationBackend/Exports:/app/Exports
   

@@ -55,6 +55,7 @@ public class RabbitMqService
 
             try
             {
+                _logger.LogInformation($"Received message: {message}");
                 var data = BsonSerializer.Deserialize<DataEntity>(message);
                 await _dataService.AddAsync(data);
             }
