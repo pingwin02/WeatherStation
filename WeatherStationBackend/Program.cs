@@ -16,8 +16,12 @@ builder.Services.Configure<DatabaseSettings>(
 builder.Services.Configure<RabbitMqConfiguration>(
     builder.Configuration.GetSection("RabbitMq"));
 
+builder.Services.Configure<TokenSettings>(
+    builder.Configuration.GetSection("TokenSettings"));
+
 builder.Services.AddSingleton<SensorService>();
 builder.Services.AddSingleton<DataService>();
+builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<RabbitMqService>();
 builder.Services.AddHostedService<RabbitMqBackgroundService>();
 
@@ -44,9 +48,6 @@ app.UseSwaggerUI(c =>
     c.RoutePrefix = "api/swagger";
 });
 
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllers();
-});
+app.UseEndpoints(endpoints => { endpoints.MapControllers(); });
 
 app.Run();
