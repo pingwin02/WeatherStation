@@ -9,6 +9,9 @@ function NavMenu() {
           <Link to="/" style={styles.navLink}>Dashboard</Link>
         </li>
         <li style={styles.navItem}>
+          <Link to="/sensors/data" style={styles.navLink}>All data</Link>
+        </li>
+        <li style={styles.navItem}>
           <Link to="/sensors" style={styles.navLink}>Sensors</Link>
         </li>
         <li style={styles.navItem}>

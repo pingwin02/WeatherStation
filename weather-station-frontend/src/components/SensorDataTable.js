@@ -1,0 +1,171 @@
+import React, { useEffect, useState } from 'react';
+import { getSensors, getData } from '../services/sensorService'; // Zmieniona funkcja na getData
+import './SensorDataTable.css'; // Import for CSS styling
+
+const SensorDataTable = () => {
+    const [allData, setAllData] = useState([]); // Pełny zbiór danych
+    const [filteredData, setFilteredData] = useState([]); // Filtrowany zbiór danych
+    const [currentPage, setCurrentPage] = useState(1); // Aktualna strona
+    const [filters, setFilters] = useState({
+        sensorName: '',
+        sensorType: '',
+        startDate: '',
+        endDate: ''
+    });
+    const itemsPerPage = 16; // Liczba pomiarów na stronę
+
+    // Funkcja pobierająca dane czujników i pomiary
+    const fetchAllData = async () => {
+        try {
+            const sensors = await getSensors();
+            if (!sensors) throw new Error('Sensor data is undefined');
+
+            const data = await getData();
+            if (!data) throw new Error('Data is undefined');
+
+            // Połączenie sensorów z ich danymi pomiarowymi
+            const mergedData = data.map(item => {
+                const sensor = sensors.find(sensor => sensor.id === item.sensorId);
+                return {
+                    ...item,
+                    sensorName: sensor ? sensor.name : 'Unknown',
+                    sensorType: sensor ? sensor.type : 'Unknown'
+                };
+            });
+
+            setAllData(mergedData);
+            setFilteredData(mergedData); // Domyślnie brak filtrów
+        } catch (error) {
+            console.error('Error fetching data:', error);
+        }
+    };
+
+    // Ładowanie danych przy montażu komponentu
+    useEffect(() => {
+        fetchAllData();
+    }, []);
+
+    // Funkcja filtrowania danych
+    const filterData = () => {
+        const { sensorName, sensorType, startDate, endDate } = filters;
+        let filtered = allData;
+
+        if (sensorName) {
+            filtered = filtered.filter(data => data.sensorName.toLowerCase().includes(sensorName.toLowerCase()));
+        }
+        if (sensorType) {
+            filtered = filtered.filter(data => data.sensorType.toLowerCase().includes(sensorType.toLowerCase()));
+        }
+        if (startDate) {
+            filtered = filtered.filter(data => new Date(data.timestamp) >= new Date(startDate));
+        }
+        if (endDate) {
+            filtered = filtered.filter(data => new Date(data.timestamp) <= new Date(endDate));
+        }
+
+        setFilteredData(filtered);
+        setCurrentPage(1); // Resetowanie do pierwszej strony po filtrowaniu
+    };
+
+    // Obsługa zmiany w polach filtrów
+    const handleFilterChange = (e) => {
+        setFilters({
+            ...filters,
+            [e.target.name]: e.target.value
+        });
+    };
+
+    // Uruchamianie filtrowania za każdym razem, gdy filtry się zmieniają
+    useEffect(() => {
+        filterData();
+    }, [filters]);
+
+    // Funkcja zmiany strony
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage);
+    };
+
+    // Obliczanie indeksów do paginacji
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
+    const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+    return (
+        <div className="sensor-data-table">
+            <h1>All Sensor Data</h1>
+
+            {/* Formularz filtrowania */}
+            <div className="filters">
+                <input
+                    type="text"
+                    name="sensorName"
+                    placeholder="Filter by Sensor Name"
+                    value={filters.sensorName}
+                    onChange={handleFilterChange}
+                />
+                <input
+                    type="text"
+                    name="sensorType"
+                    placeholder="Filter by Sensor Type"
+                    value={filters.sensorType}
+                    onChange={handleFilterChange}
+                />
+                <input
+                    type="datetime-local"
+                    name="startDate"
+                    value={filters.startDate}
+                    onChange={handleFilterChange}
+                />
+                <input
+                    type="datetime-local"
+                    name="endDate"
+                    value={filters.endDate}
+                    onChange={handleFilterChange}
+                />
+            </div>
+
+            {/* Tabela z danymi czujników */}
+            <table className="sensor-table">
+                <thead>
+                    <tr>
+                        <th>Sensor Name</th>
+                        <th>Sensor Type</th>
+                        <th>Value</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {paginatedData.length > 0 ? (
+                        paginatedData.map((data) => (
+                            <tr key={data.id}>
+                                <td>{data.sensorName}</td>
+                                <td>{data.sensorType}</td>
+                                <td>{data.value.toFixed(2)}</td>
+                                <td>{new Date(data.timestamp).toLocaleString()}</td>
+                            </tr>
+                        ))
+                    ) : (
+                        <tr>
+                            <td colSpan="4">No data available</td>
+                        </tr>
+                    )}
+                </tbody>
+            </table>
+
+            {/* Paginacja */}
+            <div className="pagination">
+                {Array.from({ length: totalPages }, (_, index) => (
+                    <button
+                        key={index}
+                        onClick={() => handlePageChange(index + 1)}
+                        disabled={currentPage === index + 1}
+                    >
+                        {index + 1}
+                    </button>
+                ))}
+            </div>
+        </div>
+    );
+};
+
+export default SensorDataTable;

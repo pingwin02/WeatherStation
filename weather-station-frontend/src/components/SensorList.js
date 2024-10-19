@@ -79,7 +79,7 @@ const SensorList = () => {
                         <tr key={sensor.id}>
                             <td>{sensor.name}</td>
                             <td>{sensor.recentData ? sensor.recentData.value : 'No data available'}</td>
-                            <td>{sensor.average.toFixed(2)}</td>
+                            <td>{sensor.recentData ? sensor.average.toFixed(2) : 'No data available'}</td>
                             <td>
                                 <a href={`/sensors/${sensor.id}`}>View Details</a>
                             </td>
@@ -92,8 +92,7 @@ const SensorList = () => {
 
     return (
         <div className="sensor-list-container">
-            <h1>Sensors</h1>
-            <FilterForm filter={filter} setFilter={setFilter} />
+            <h1>Dashboard</h1>
             <div className="sensor-section">
                 <h2 onClick={() => toggleCollapse('Temperature')} className="collapsible-header">
                     Temperature {collapsed.Temperature ? '▼' : '▶'}

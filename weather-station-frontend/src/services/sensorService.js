@@ -14,6 +14,19 @@ export const getSensors = async () => {
         return []; // Return an empty array in case of error to prevent breaking the UI
     }
 };
+export const getData = async () => {
+    try {
+        const response = await fetch('http://localhost:8000/api/data');
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        const data = await response.json();
+        return data; // Ensure this returns the expected array of sensors
+    } catch (error) {
+        console.error("Error fetching sensors:", error);
+        return []; // Return an empty array in case of error to prevent breaking the UI
+    }
+};
 export const getRecentMeasurement = async (sensorId) => {
     try {
         const response = await fetch(`http://localhost:8000/api/sensors/${sensorId}/data/recent`);

@@ -4,6 +4,7 @@ import SensorList from './components/SensorList';
 import SensorDetails from './components/SensorDetails';
 import TokenBalance from './components/TokenBalance';
 import NavMenu from './components/NavMenu';
+import SensorDataTable from './components/SensorDataTable'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
             <Routes>
                 <Route path="/" element={<SensorList />} />
                 <Route path="/sensors/:id" element={<SensorDetails />} />
+                <Route path="/sensors/data" element={<SensorDataTable />} />
                 <Route path="/tokens" element={<TokenBalance />} />
             </Routes>
         </div>
