@@ -13,13 +13,11 @@ public class DataService
     private readonly IMongoCollection<DataEntity> _dataCollection;
     private readonly ILogger _logger;
     private readonly SensorService _sensorService;
-    private readonly TokenService _tokenService;
 
     public DataService(
         IOptions<DatabaseSettings> databaseSettings,
         ILogger<DataService> logger,
-        SensorService sensorService,
-        TokenService tokenService)
+        SensorService sensorService)
     {
         _logger = logger;
         _logger.LogInformation("DataService started");
@@ -34,7 +32,6 @@ public class DataService
             databaseSettings.Value.DataCollectionName);
 
         _sensorService = sensorService;
-        _tokenService = tokenService;
     }
 
     public async Task<List<DataEntity>> GetFilteredDataAsync(
@@ -112,10 +109,6 @@ public class DataService
     public async Task AddAsync(DataEntity newData)
     {
         await _dataCollection.InsertOneAsync(newData);
-
-        var sensorAdress = _sensorService.GetAsync(newData.SensorId).Result.WalletAddress;
-
-        await _tokenService.TransferTokensAsync(sensorAdress);
     }
 
     public async Task DeleteBySensorIdAsync(string sensorId)

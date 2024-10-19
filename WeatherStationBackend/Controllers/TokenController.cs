@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using Nethereum.Web3;
 using WeatherStationBackend.Services;
 
 namespace WeatherStationBackend.Controllers;
@@ -8,7 +7,6 @@ namespace WeatherStationBackend.Controllers;
 [Route("api/sensors")]
 public class TokenController : ControllerBase
 {
-    private const int Decimals = 6;
     private readonly ILogger<TokenController> _logger;
     private readonly SensorService _sensorService;
     private readonly TokenService _tokenService;
@@ -36,9 +34,7 @@ public class TokenController : ControllerBase
         {
             var sensor = await _sensorService.GetAsync(id);
             var sensorAddress = sensor.WalletAddress;
-
-            var balance = await _tokenService.GetBalanceAsync(sensorAddress);
-            var tokenAmount = Web3.Convert.FromWei(balance, Decimals);
+            var tokenAmount = await _tokenService.GetBalanceAsync(sensorAddress);
 
             return Ok(new { SensorAddress = sensorAddress, Balance = tokenAmount });
         }
@@ -50,7 +46,7 @@ public class TokenController : ControllerBase
         {
             return BadRequest("Invalid sensor ID format.");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return StatusCode(500, "Error retrieving balance.");
         }

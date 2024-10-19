@@ -10,13 +10,11 @@ public class SensorController : ControllerBase
 {
     private readonly DataService _dataService;
     private readonly SensorService _sensorService;
-    private readonly TokenService _tokenService;
 
     public SensorController(SensorService sensorService, DataService dataService, TokenService tokenService)
     {
         _sensorService = sensorService;
         _dataService = dataService;
-        _tokenService = tokenService;
     }
 
     /// <summary>

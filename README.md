@@ -81,6 +81,4 @@
 
 ## Monitoring
 - Use the [Etherscan Holesky Explorer](https://holesky.etherscan.io) to monitor transactions related to your deployed contract.
-- Transaction related to this project can be found [here](https://holesky.etherscan.io/token/0xe99ddc1405e2a5c2c4d57642ea742706a9ddb750).
-
-
+- Transactions related to this project can be found [here](https://holesky.etherscan.io/token/0xe99ddc1405e2a5c2c4d57642ea742706a9ddb750).

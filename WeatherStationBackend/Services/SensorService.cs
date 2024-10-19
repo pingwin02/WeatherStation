@@ -47,12 +47,6 @@ public class SensorService
         return await _sensorsCollection.Find(x => x.Type == type).ToListAsync();
     }
 
-
-    public async Task<List<SensorEntity>> GetByNameAsync(string name)
-    {
-        return await _sensorsCollection.Find(x => x.Name == name).ToListAsync();
-    }
-
     public async Task<string> CreateAsync(SensorRequest newSensor)
     {
         if (!Enum.IsDefined(typeof(SensorType), newSensor.Type))

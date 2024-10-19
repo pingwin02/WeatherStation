@@ -61,9 +61,9 @@ def send_single_value(sensor_id: str, value: float):
 
 def main():
     parser = argparse.ArgumentParser(description="Sensor data simulation and management.")
-    parser.add_argument('--single', type=str, help="Send a single value to a sensor (format: sensor_id:value)", default=None)
-    parser.add_argument('--create', action='store_true', help="Only create sensors and exit", default=False)
-    parser.add_argument('--start', action='store_true', help="Only start the simulation", default=False)
+    parser.add_argument('--single', metavar='id:value', type=str, help="send a single value by a sensor (format: sensor_id:value)", default=None)
+    parser.add_argument('--create', action='store_true', help="only create sensors and exit", default=False)
+    parser.add_argument('--start', action='store_true', help="only start the simulation", default=False)
     
     args = parser.parse_args()
 

@@ -1,4 +1,3 @@
 ﻿bin
 obj
-Exports/*.csv
-Exports/*.json
+Exports
