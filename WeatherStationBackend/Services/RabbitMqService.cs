@@ -12,12 +12,13 @@ namespace WeatherStationBackend.Services;
 public class RabbitMqService : IDisposable
 {
     private readonly int _awardAmount;
-    private readonly IModel _channel;
     private readonly IConnection _connection;
+    private readonly IModel _dataChannel;
     private readonly string _dataQueueName;
     private readonly DataService _dataService;
     private readonly ILogger _logger;
     private readonly TokenService _tokenService;
+    private readonly IModel _transactionChannel;
     private readonly string _transactionQueueName;
 
     public RabbitMqService(
@@ -36,7 +37,10 @@ public class RabbitMqService : IDisposable
             Password = rabbitMqConfiguration.Value.Password
         };
         _connection = factory.CreateConnection();
-        _channel = _connection.CreateModel();
+
+        _dataChannel = _connection.CreateModel();
+        _transactionChannel = _connection.CreateModel();
+        _transactionChannel.BasicQos(0, 1, true);
 
         _dataQueueName = rabbitMqConfiguration.Value.DataQueueName;
         _transactionQueueName = rabbitMqConfiguration.Value.TransactionQueueName;
@@ -46,14 +50,14 @@ public class RabbitMqService : IDisposable
         _dataService = dataService;
         _tokenService = tokenService;
 
-        _channel.QueueDeclare(
+        _dataChannel.QueueDeclare(
             _dataQueueName,
             false,
             false,
             false,
             null);
 
-        _channel.QueueDeclare(
+        _transactionChannel.QueueDeclare(
             _transactionQueueName,
             false,
             false,
@@ -66,12 +70,13 @@ public class RabbitMqService : IDisposable
 
     public void Dispose()
     {
-        _channel.Close();
+        _dataChannel.Close();
+        _transactionChannel.Close();
     }
 
     private void StartReceivingMessages()
     {
-        EventingBasicConsumer dataConsumer = new(_channel);
+        EventingBasicConsumer dataConsumer = new(_dataChannel);
         dataConsumer.Received += async (model, ea) =>
         {
             var body = ea.Body.ToArray();
@@ -94,7 +99,7 @@ public class RabbitMqService : IDisposable
             }
         };
 
-        _channel.BasicConsume(
+        _dataChannel.BasicConsume(
             _dataQueueName,
             true,
             dataConsumer
@@ -103,9 +108,8 @@ public class RabbitMqService : IDisposable
 
     private void StartReceivingTransactions()
     {
-        EventingBasicConsumer transactionConsumer = new(_channel);
+        EventingBasicConsumer transactionConsumer = new(_transactionChannel);
 
-        _channel.BasicQos(0, 1, false);
         transactionConsumer.Received += async (model, ea) =>
         {
             var body = ea.Body.ToArray();
@@ -117,16 +121,16 @@ public class RabbitMqService : IDisposable
                 var transaction = BsonSerializer.Deserialize<Transaction>(message);
                 if (transaction.SensorId == null) throw new Exception("Sensor ID is null");
                 await _tokenService.TransferTokensAsync(transaction.SensorId, transaction.Amount);
-                _channel.BasicAck(ea.DeliveryTag, false);
+                _transactionChannel.BasicAck(ea.DeliveryTag, false);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error while processing transaction message");
-                _channel.BasicNack(ea.DeliveryTag, false, false);
+                _transactionChannel.BasicNack(ea.DeliveryTag, false, false);
             }
         };
 
-        _channel.BasicConsume(
+        _transactionChannel.BasicConsume(
             _transactionQueueName,
             false,
             transactionConsumer
@@ -140,7 +144,7 @@ public class RabbitMqService : IDisposable
             var message = JsonSerializer.Serialize(transaction);
             var body = Encoding.UTF8.GetBytes(message);
 
-            _channel.BasicPublish(
+            _transactionChannel.BasicPublish(
                 "",
                 _transactionQueueName,
                 null,
