@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getSensors, getData } from '../services/sensorService'; // Zmieniona funkcja na getData
+import { getSensors, getData } from '../services/sensorService';
 import './SensorDataTable.css'; // Import for CSS styling
 
 const SensorDataTable = () => {
@@ -12,6 +12,8 @@ const SensorDataTable = () => {
         startDate: '',
         endDate: ''
     });
+    const [sortConfig, setSortConfig] = useState({ key: '', direction: 'asc' }); // Stan sortowania
+
     const itemsPerPage = 16; // Liczba pomiarów na stronę
 
     // Funkcja pobierająca dane czujników i pomiary
@@ -80,6 +82,33 @@ const SensorDataTable = () => {
         filterData();
     }, [filters]);
 
+    // Funkcja sortowania danych
+    const sortData = (key) => {
+        let direction = 'asc';
+        if (sortConfig.key === key && sortConfig.direction === 'asc') {
+            direction = 'desc';
+        }
+        setSortConfig({ key, direction });
+
+        const sortedData = [...filteredData].sort((a, b) => {
+            if (key === 'value') {
+                return direction === 'asc' ? a.value - b.value : b.value - a.value;
+            } else if (key === 'timestamp') {
+                return direction === 'asc'
+                    ? new Date(a.timestamp) - new Date(b.timestamp)
+                    : new Date(b.timestamp) - new Date(a.timestamp);
+            } else {
+                const aValue = a[key] ? a[key].toString().toLowerCase() : '';
+                const bValue = b[key] ? b[key].toString().toLowerCase() : '';
+                if (aValue < bValue) return direction === 'asc' ? -1 : 1;
+                if (aValue > bValue) return direction === 'asc' ? 1 : -1;
+                return 0;
+            }
+        });
+
+        setFilteredData(sortedData);
+    };
+
     // Funkcja zmiany strony
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
@@ -128,10 +157,18 @@ const SensorDataTable = () => {
             <table className="sensor-table">
                 <thead>
                     <tr>
-                        <th>Sensor Name</th>
-                        <th>Sensor Type</th>
-                        <th>Value</th>
-                        <th>Timestamp</th>
+                        <th onClick={() => sortData('sensorName')}>
+                            Sensor Name {sortConfig.key === 'sensorName' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                        </th>
+                        <th onClick={() => sortData('sensorType')}>
+                            Sensor Type {sortConfig.key === 'sensorType' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                        </th>
+                        <th onClick={() => sortData('value')}>
+                            Value {sortConfig.key === 'value' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                        </th>
+                        <th onClick={() => sortData('timestamp')}>
+                            Timestamp {sortConfig.key === 'timestamp' ? (sortConfig.direction === 'asc' ? '▲' : '▼') : ''}
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
