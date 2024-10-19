@@ -9,11 +9,18 @@ Chart.register(...registerables);
 const SensorDetails = () => {
     const { id: sensorId } = useParams();
     const [sensorData, setSensorData] = useState([]);
+    const [average, setAverage] = useState(0);
+
+    const getAverage = (data) => {
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        return total / data.length; // Return the average
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             const data = await getSensorDetails(sensorId);
             setSensorData(data.slice(-100));
+            setAverage(getAverage(data.slice(-100)))
         };
 
         fetchData();

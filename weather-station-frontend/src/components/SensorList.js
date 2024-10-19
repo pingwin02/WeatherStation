@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { getSensors, getRecentMeasurement } from '../services/sensorService';
+import { getSensors, getRecentMeasurement, getSensorDetails } from '../services/sensorService';
 import FilterForm from './FilterForm';
+import './SensorList.css'; // Import the CSS file for styling
 
 const SensorList = () => {
     const [sensors, setSensors] = useState([]);
@@ -17,24 +18,28 @@ const SensorList = () => {
         Pressure: true
     });
 
+    const calculateAverage = (data) => {
+        if (!data || data.length === 0) return 0;
+        const total = data.reduce((sum, item) => sum + item.value, 0);
+        return total / data.length;
+    };
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const sensorData = await getSensors();
-                console.log(sensorData); // Log the response
                 if (!sensorData) {
                     throw new Error("Sensor data is undefined");
                 }
                 const sensorsWithData = await Promise.all(sensorData.map(async sensor => {
                     const recentData = await getRecentMeasurement(sensor.id);
-                    const average = 1;
+                    const sensorDetails = await getSensorDetails(sensor.id);
+                    const average = calculateAverage(sensorDetails.slice(-100));
                     return { ...sensor, recentData, average };
                 }));
                 setSensors(sensorsWithData);
             } catch (error) {
                 console.error("Error fetching sensor data:", error);
-                // Optionally, you could set an error state here to display an error message to the user.
             }
         };
 
@@ -48,20 +53,25 @@ const SensorList = () => {
         }));
     };
 
-    // Filter sensors by type
     const filterByType = (type) => {
         return sensors.filter(sensor => sensor.type === type);
+    };
+
+    const hasData = (sensorType) => {
+        const filteredSensors = filterByType(sensorType);
+        return filteredSensors.length > 0;
     };
 
     const renderSensorTable = (sensorType) => {
         const filteredSensors = filterByType(sensorType);
         return (
-            <table>
+            <table className="sensor-table">
                 <thead>
                     <tr>
                         <th>Sensor Name</th>
                         <th>Last Value</th>
                         <th>Average (Last 100)</th>
+                        <th>Sensor Details</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -69,7 +79,10 @@ const SensorList = () => {
                         <tr key={sensor.id}>
                             <td>{sensor.name}</td>
                             <td>{sensor.recentData ? sensor.recentData.value : 'No data available'}</td>
-                            <td>{sensor.average}</td>
+                            <td>{sensor.average.toFixed(2)}</td>
+                            <td>
+                                <a href={`/sensors/${sensor.id}`}>View Details</a>
+                            </td>
                         </tr>
                     ))}
                 </tbody>
@@ -78,32 +91,40 @@ const SensorList = () => {
     };
 
     return (
-        <div>
+        <div className="sensor-list-container">
             <h1>Sensors</h1>
             <FilterForm filter={filter} setFilter={setFilter} />
-            <div>
-                <h2 onClick={() => toggleCollapse('Temperature')}>
-                    Temperature {collapsed.Temperature ? '▼' : '▲'}
+            <div className="sensor-section">
+                <h2 onClick={() => toggleCollapse('Temperature')} className="collapsible-header">
+                    Temperature {collapsed.Temperature ? '▼' : '▶'}
                 </h2>
-                {collapsed.Temperature && renderSensorTable('Temperature')}
+                {collapsed.Temperature && (
+                    hasData('Temperature') ? renderSensorTable('Temperature') : <p>No data available</p>
+                )}
             </div>
-            <div>
-                <h2 onClick={() => toggleCollapse('WindSpeed')}>
-                    WindSpeed {collapsed.Wind ? '▼' : '▲'}
+            <div className="sensor-section">
+                <h2 onClick={() => toggleCollapse('WindSpeed')} className="collapsible-header">
+                    WindSpeed {collapsed.WindSpeed ? '▼' : '▶'}
                 </h2>
-                {collapsed.WindSpeed && renderSensorTable('WindSpeed')}
+                {collapsed.WindSpeed && (
+                    hasData('WindSpeed') ? renderSensorTable('WindSpeed') : <p>No data available</p>
+                )}
             </div>
-            <div>
-                <h2 onClick={() => toggleCollapse('Humidity')}>
-                    Humidity {collapsed.Other1 ? '▼' : '▲'}
+            <div className="sensor-section">
+                <h2 onClick={() => toggleCollapse('Humidity')} className="collapsible-header">
+                    Humidity {collapsed.Humidity ? '▼' : '▶'}
                 </h2>
-                {collapsed.Humidity && renderSensorTable('Humidity')}
+                {collapsed.Humidity && (
+                    hasData('Humidity') ? renderSensorTable('Humidity') : <p>No data available</p>
+                )}
             </div>
-            <div>
-                <h2 onClick={() => toggleCollapse('Pressure')}>
-                    Pressure {collapsed.Other2 ? '▼' : '▲'}
+            <div className="sensor-section">
+                <h2 onClick={() => toggleCollapse('Pressure')} className="collapsible-header">
+                    Pressure {collapsed.Pressure ? '▼' : '▶'}
                 </h2>
-                {collapsed.Pressure && renderSensorTable('Pressure')}
+                {collapsed.Pressure && (
+                    hasData('Pressure') ? renderSensorTable('Pressure') : <p>No data available</p>
+                )}
             </div>
         </div>
     );
