@@ -44,7 +44,7 @@ const SensorDetails = () => {
 
         setSensorUnit(unit);
         setSensorInformation(sensorInformation);
-        setSensorData(sensorDetails); // Set array data here
+        setSensorData(sensorDetails);
       } catch (error) {
         console.error("Error fetching sensor data:", error);
       }
@@ -64,7 +64,7 @@ const SensorDetails = () => {
         backgroundColor: "rgba(75,192,192,0.6)",
         borderColor: "rgba(75,192,192,1)",
         borderWidth: 2,
-        tension: 0.1, // Smoother curve for the line
+        tension: 0.1,
       },
     ],
   };
@@ -75,13 +75,13 @@ const SensorDetails = () => {
       y: {
         title: {
           display: true,
-          text: `Value (${sensorUnit})`, // Y-axis label with the unit
+          text: `Value (${sensorUnit})`,
         },
       },
       x: {
         title: {
           display: true,
-          text: "Timestamp", // X-axis label
+          text: "Timestamp",
         },
       },
     },
@@ -96,7 +96,7 @@ const SensorDetails = () => {
           <p>
             <strong>Type:</strong> {sensorInformation.type}
           </p>
-          <Line data={chartData} options={chartOptions} /> {/* Render the chart */}
+          <Line data={chartData} options={chartOptions} />
         </div>
       ) : (
         <div className="loading">Loading sensor data...</div>
