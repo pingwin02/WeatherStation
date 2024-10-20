@@ -136,6 +136,31 @@ const SensorDataTable = () => {
   );
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
+  const getPaginationRange = () => {
+    const range = [];
+    const maxVisiblePages = 1;
+
+    range.push(1);
+
+    if (currentPage > maxVisiblePages + 1) {
+      range.push("...");
+    }
+
+    for (let i = Math.max(2, currentPage - maxVisiblePages); i <= Math.min(totalPages - 1, currentPage + maxVisiblePages); i++) {
+      range.push(i);
+    }
+
+    if (currentPage < totalPages - maxVisiblePages) {
+      range.push("...");
+    }
+
+    if (totalPages > 1) {
+      range.push(totalPages);
+    }
+
+    return range;
+  };
+
   return (
     <div className="sensor-data-table">
       <h1>All Sensor Data</h1>
@@ -228,16 +253,23 @@ const SensorDataTable = () => {
         </tbody>
       </table>
 
-      <div className="pagination">
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            onClick={() => handlePageChange(index + 1)}
-            disabled={currentPage === index + 1}
-          >
-            {index + 1}
-          </button>
-        ))}
+      <div className="pagination-container">
+        <div className="pagination">
+          {getPaginationRange().map((page, index) => (
+            <span
+              key={index}
+              onClick={() => (typeof page === "number" ? handlePageChange(page) : null)}
+              style={{
+                cursor: typeof page === "number" ? "pointer" : "default",
+                fontWeight: currentPage === page ? "bold" : "normal",
+                margin: "0 5px",
+                textDecoration: currentPage === page ? "underline" : "none",
+              }}
+            >
+              {page}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

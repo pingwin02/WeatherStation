@@ -16,11 +16,6 @@ function NavMenu() {
           </Link>
         </li>
         <li style={styles.navItem}>
-          <Link to="/sensors" style={styles.navLink}>
-            Sensors
-          </Link>
-        </li>
-        <li style={styles.navItem}>
           <Link to="/tokens" style={styles.navLink}>
             Token Balance
           </Link>
