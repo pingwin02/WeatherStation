@@ -115,19 +115,19 @@ const SensorDataTable = () => {
   };
 
   const getUnit = (sensorType) => {
-        switch (sensorType.toLowerCase()) {
-            case 'windspeed':
-                return 'km/h';
-            case 'pressure':
-                return 'hPa';
-            case 'temperature':
-                return '°C';
-            case 'humidity':
-                return 'g/m³';
-            default:
-                return '';
-        }
-    };
+    switch (sensorType.toLowerCase()) {
+      case "windspeed":
+        return "km/h";
+      case "pressure":
+        return "hPa";
+      case "temperature":
+        return "°C";
+      case "humidity":
+        return "g/m³";
+      default:
+        return "";
+    }
+  };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -135,6 +135,31 @@ const SensorDataTable = () => {
     startIndex + itemsPerPage,
   );
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+
+  const getPaginationRange = () => {
+    const range = [];
+    const maxVisiblePages = 1;
+
+    range.push(1);
+
+    if (currentPage > maxVisiblePages + 1) {
+      range.push("...");
+    }
+
+    for (let i = Math.max(2, currentPage - maxVisiblePages); i <= Math.min(totalPages - 1, currentPage + maxVisiblePages); i++) {
+      range.push(i);
+    }
+
+    if (currentPage < totalPages - maxVisiblePages) {
+      range.push("...");
+    }
+
+    if (totalPages > 1) {
+      range.push(totalPages);
+    }
+
+    return range;
+  };
 
   return (
     <div className="sensor-data-table">
@@ -213,9 +238,9 @@ const SensorDataTable = () => {
                 <td>{data.sensorName}</td>
                 <td>{data.sensorType}</td>
                 <td>
-                    <span title={`Unit: ${getUnit(data.sensorType)}`}>
-                        {data.value.toFixed(2)}
-                    </span>
+                  <span title={`Unit: ${getUnit(data.sensorType)}`}>
+                    {data.value.toFixed(2)}
+                  </span>
                 </td>
                 <td>{new Date(data.timestamp).toLocaleString()}</td>
               </tr>
@@ -228,16 +253,23 @@ const SensorDataTable = () => {
         </tbody>
       </table>
 
-      <div className="pagination">
-        {Array.from({ length: totalPages }, (_, index) => (
-          <button
-            key={index}
-            onClick={() => handlePageChange(index + 1)}
-            disabled={currentPage === index + 1}
-          >
-            {index + 1}
-          </button>
-        ))}
+      <div className="pagination-container">
+        <div className="pagination">
+          {getPaginationRange().map((page, index) => (
+            <span
+              key={index}
+              onClick={() => (typeof page === "number" ? handlePageChange(page) : null)}
+              style={{
+                cursor: typeof page === "number" ? "pointer" : "default",
+                fontWeight: currentPage === page ? "bold" : "normal",
+                margin: "0 5px",
+                textDecoration: currentPage === page ? "underline" : "none",
+              }}
+            >
+              {page}
+            </span>
+          ))}
+        </div>
       </div>
     </div>
   );

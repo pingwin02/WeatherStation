@@ -1,0 +1,71 @@
+.sensor-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #f4f6f8;
+    border-radius: 10px;
+    box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  h1 {
+    font-family: "Roboto", sans-serif;
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 20px;
+  }
+  
+  .sensor-details {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .sensor-details h2 {
+    font-family: "Roboto", sans-serif;
+    color: #555;
+    font-size: 20px;
+    margin-bottom: 10px;
+  }
+  
+  .sensor-details p {
+    font-family: "Roboto", sans-serif;
+    font-size: 16px;
+    color: #666;
+    margin: 8px 0;
+  }
+  
+  .loading {
+    font-family: "Roboto", sans-serif;
+    color: #777;
+    font-size: 18px;
+    margin-top: 20px;
+  }
+  
+  strong {
+    color: #333;
+  }
+  
+  @media (max-width: 768px) {
+    .sensor-container {
+      padding: 10px;
+    }
+  
+    h1 {
+      font-size: 20px;
+    }
+  
+    .sensor-details h2 {
+      font-size: 18px;
+    }
+  
+    .sensor-details p {
+      font-size: 14px;
+    }
+  
+    .loading {
+      font-size: 16px;
+    }
+  }
+  
