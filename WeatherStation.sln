@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeatherStationBackend", "WeatherStationBackend\WeatherStationBackend.csproj", "{49DD8CF0-1FA3-4B68-8A51-9CEC526EAC0A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "backend", "backend\backend.csproj", "{49DD8CF0-1FA3-4B68-8A51-9CEC526EAC0A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{3427E4BF-7A6C-461C-B58A-525B63AC930E}"
 	ProjectSection(SolutionItems) = preProject
