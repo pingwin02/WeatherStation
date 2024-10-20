@@ -114,6 +114,21 @@ const SensorDataTable = () => {
     setCurrentPage(newPage);
   };
 
+  const getUnit = (sensorType) => {
+        switch (sensorType.toLowerCase()) {
+            case 'windspeed':
+                return 'km/h';
+            case 'pressure':
+                return 'hPa';
+            case 'temperature':
+                return '°C';
+            case 'humidity':
+                return 'g/m³';
+            default:
+                return '';
+        }
+    };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
     startIndex,
@@ -197,7 +212,11 @@ const SensorDataTable = () => {
               <tr key={data.id}>
                 <td>{data.sensorName}</td>
                 <td>{data.sensorType}</td>
-                <td>{data.value.toFixed(2)}</td>
+                <td>
+                    <span title={`Unit: ${getUnit(data.sensorType)}`}>
+                        {data.value.toFixed(2)}
+                    </span>
+                </td>
                 <td>{new Date(data.timestamp).toLocaleString()}</td>
               </tr>
             ))
