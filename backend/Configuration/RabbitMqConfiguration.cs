@@ -1,4 +1,4 @@
-namespace WeatherStationBackend.Configuration;
+namespace backend.Configuration;
 
 public class RabbitMqConfiguration
 {

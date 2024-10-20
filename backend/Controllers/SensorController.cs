@@ -1,8 +1,8 @@
+using backend.Models;
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using WeatherStationBackend.Models;
-using WeatherStationBackend.Services;
 
-namespace WeatherStationBackend.Controllers;
+namespace backend.Controllers;
 
 [ApiController]
 [Route("api/sensors")]
@@ -11,7 +11,7 @@ public class SensorController : ControllerBase
     private readonly DataService _dataService;
     private readonly SensorService _sensorService;
 
-    public SensorController(SensorService sensorService, DataService dataService, TokenService tokenService)
+    public SensorController(SensorService sensorService, DataService dataService)
     {
         _sensorService = sensorService;
         _dataService = dataService;

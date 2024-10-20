@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using MongoDB.Bson.Serialization.Attributes;
 
-namespace WeatherStationBackend.Models;
+namespace backend.Models;
 
 public class Transaction
 {

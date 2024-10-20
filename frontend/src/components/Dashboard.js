@@ -5,9 +5,9 @@ import {
   getSensorData,
 } from "../services/SensorService";
 import FilterForm from "./FilterForm";
-import "./styles/SensorList.css";
+import "./styles/Dashboard.css";
 
-const SensorList = () => {
+const Dashboard = () => {
   const [sensors, setSensors] = useState([]);
   const [collapsed, setCollapsed] = useState({
     Temperature: true,
@@ -161,4 +161,4 @@ const SensorList = () => {
   );
 };
 
-export default SensorList;
+export default Dashboard;

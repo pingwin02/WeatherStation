@@ -1,4 +1,4 @@
-namespace WeatherStationBackend.Services;
+namespace backend.Services;
 
 public class RabbitMqBackgroundService : BackgroundService
 {
