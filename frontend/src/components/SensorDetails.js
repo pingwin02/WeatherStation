@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
-import { Line } from "react-chartjs-2"; // Import Line chart from react-chartjs-2
-import "chart.js/auto"; // Importing the auto version of chart.js
+import { Line } from "react-chartjs-2";
+import "chart.js/auto";
 import "./styles/SensorDetails.css";
 import { getSensorDetails, getSensorInformation } from "../services/sensorService";
 
@@ -19,7 +19,7 @@ const SensorDetails = () => {
           throw new Error("Sensor information is undefined");
         }
 
-        const sensorDetails = await getSensorDetails(sensorId); // Assume it's an array of values
+        const sensorDetails = await getSensorDetails(sensorId);
         if (!sensorDetails || !Array.isArray(sensorDetails)) {
           throw new Error("Sensor data is undefined or not an array");
         }
@@ -44,7 +44,7 @@ const SensorDetails = () => {
 
         setSensorUnit(unit);
         setSensorInformation(sensorInformation);
-        setSensorData(sensorDetails); // Set array data here
+        setSensorData(sensorDetails);
       } catch (error) {
         console.error("Error fetching sensor data:", error);
       }
@@ -64,7 +64,7 @@ const SensorDetails = () => {
         backgroundColor: "rgba(75,192,192,0.6)",
         borderColor: "rgba(75,192,192,1)",
         borderWidth: 2,
-        tension: 0.1, // Smoother curve for the line
+        tension: 0.1,
       },
     ],
   };
@@ -75,13 +75,13 @@ const SensorDetails = () => {
       y: {
         title: {
           display: true,
-          text: `Value (${sensorUnit})`, // Y-axis label with the unit
+          text: `Value (${sensorUnit})`,
         },
       },
       x: {
         title: {
           display: true,
-          text: "Timestamp", // X-axis label
+          text: "Timestamp",
         },
       },
     },
@@ -96,7 +96,7 @@ const SensorDetails = () => {
           <p>
             <strong>Type:</strong> {sensorInformation.type}
           </p>
-          <Line data={chartData} options={chartOptions} /> {/* Render the chart */}
+          <Line data={chartData} options={chartOptions} />
         </div>
       ) : (
         <div className="loading">Loading sensor data...</div>

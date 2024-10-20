@@ -5,7 +5,7 @@ import "./styles/TokenBalance.css";
 
 const TokenBalance = () => {
   const [tokenBalances, setTokenBalances] = useState([]);
-  const [loading, setLoading] = useState(true); // New loading state
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -24,7 +24,7 @@ const TokenBalance = () => {
       } catch (error) {
         console.error("Error fetching sensor data:", error);
       } finally {
-        setLoading(false); // Set loading to false when data fetching is done
+        setLoading(false);
       }
     };
 
@@ -34,7 +34,7 @@ const TokenBalance = () => {
   return (
     <div className="table-container">
       <h1>Token Balances</h1>
-      {loading ? ( // Show spinner while loading
+      {loading ? (
         <div className="spinner-container">
           <div className="spinner"></div>
           <p>Loading...</p>
