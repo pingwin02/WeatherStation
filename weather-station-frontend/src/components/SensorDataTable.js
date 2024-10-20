@@ -119,6 +119,23 @@ const SensorDataTable = () => {
     const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
+        // Funkcja zwracająca odpowiednią jednostkę dla każdego typu sensora
+    const getUnit = (sensorType) => {
+        switch (sensorType.toLowerCase()) {  // Added trim() to remove extra spaces
+            case 'windspeed':
+                return 'km/h';
+            case 'pressure':
+                return 'hPa';
+            case 'temperature':
+                return '°C';
+            case 'humidity':
+                return 'g/m³';
+            default:
+                return '';
+        }
+    };
+
+
     return (
         <div className="sensor-data-table">
             <h1>All Sensor Data</h1>
@@ -177,7 +194,11 @@ const SensorDataTable = () => {
                             <tr key={data.id}>
                                 <td>{data.sensorName}</td>
                                 <td>{data.sensorType}</td>
-                                <td>{data.value.toFixed(2)}</td>
+                                <td>
+                                    <span title={`Unit: ${getUnit(data.sensorType)}`}>
+                                        {data.value.toFixed(2)}
+                                    </span>
+                                </td>
                                 <td>{new Date(data.timestamp).toLocaleString()}</td>
                             </tr>
                         ))
