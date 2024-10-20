@@ -146,7 +146,11 @@ const SensorDataTable = () => {
       range.push("...");
     }
 
-    for (let i = Math.max(2, currentPage - maxVisiblePages); i <= Math.min(totalPages - 1, currentPage + maxVisiblePages); i++) {
+    for (
+      let i = Math.max(2, currentPage - maxVisiblePages);
+      i <= Math.min(totalPages - 1, currentPage + maxVisiblePages);
+      i++
+    ) {
       range.push(i);
     }
 
@@ -258,7 +262,9 @@ const SensorDataTable = () => {
           {getPaginationRange().map((page, index) => (
             <span
               key={index}
-              onClick={() => (typeof page === "number" ? handlePageChange(page) : null)}
+              onClick={() =>
+                typeof page === "number" ? handlePageChange(page) : null
+              }
               style={{
                 cursor: typeof page === "number" ? "pointer" : "default",
                 fontWeight: currentPage === page ? "bold" : "normal",

@@ -18,7 +18,7 @@ const TokenBalance = () => {
           sensorData.map(async (sensor) => {
             const tokenBalance = await getTokenBalance(sensor.id);
             return { ...sensor, balance: tokenBalance.Balance };
-          })
+          }),
         );
         setTokenBalances(sensorsWithData);
       } catch (error) {

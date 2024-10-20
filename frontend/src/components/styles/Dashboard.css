@@ -3,6 +3,14 @@
   margin: 20px;
 }
 
+.value-up {
+  color: green;
+}
+
+.value-down {
+  color: red;
+}
+
 h1 {
   text-align: center;
   color: #333;

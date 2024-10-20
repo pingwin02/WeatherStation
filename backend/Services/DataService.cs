@@ -1,11 +1,11 @@
 ﻿using System.Globalization;
+using System.Text.Json;
 using backend.Configuration;
 using backend.Controllers;
 using backend.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using Newtonsoft.Json;
 
 namespace backend.Services;
 
@@ -99,7 +99,11 @@ public class DataService
     {
         var jsonFilePath = Path.Combine("Exports", $"data_{DateTime.Now:yyyyMMddHHmmss}.json");
 
-        var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
+
         await File.WriteAllTextAsync(jsonFilePath, json);
 
         return jsonFilePath;
@@ -108,7 +112,7 @@ public class DataService
     public async Task AddAsync(DataEntity newData)
     {
         await _dataCollection.InsertOneAsync(newData);
-        await WebSocketController.SendMessage(JsonConvert.SerializeObject(newData));
+        await WebSocketController.SendMessage(JsonSerializer.Serialize(newData));
     }
 
     public async Task DeleteBySensorIdAsync(string sensorId)

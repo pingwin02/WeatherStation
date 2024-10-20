@@ -10,15 +10,26 @@ public class WebSocketController : ControllerBase
 {
     private static readonly List<WebSocket> Clients = new();
 
+    [ApiExplorerSettings(IgnoreApi = true)]
     [HttpGet]
-    public async Task HandleWebSocket()
+    public async Task Get()
     {
         if (HttpContext.WebSockets.IsWebSocketRequest)
         {
             var webSocket = await HttpContext.WebSockets.AcceptWebSocketAsync();
-            Clients.Add(webSocket);
-            await Receive(webSocket);
+            await HandleWebSocket(webSocket);
         }
+        else
+        {
+            HttpContext.Response.StatusCode = 400;
+        }
+    }
+
+    [ApiExplorerSettings(IgnoreApi = true)]
+    public async Task HandleWebSocket(WebSocket webSocket)
+    {
+        Clients.Add(webSocket);
+        await Receive(webSocket);
     }
 
     private async Task Receive(WebSocket webSocket)

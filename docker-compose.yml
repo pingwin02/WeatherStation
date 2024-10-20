@@ -49,3 +49,4 @@ services:
       - backend
     environment:
       BACKEND_URL: "http://backend:8000/api"
+      WEB_SOCKET_URL: "http://backend:8000/ws"

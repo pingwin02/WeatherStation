@@ -21,7 +21,7 @@ class Sensor:
 
     SENSOR_INFO = {
         "Temperature": {"range": (-20, 50), "rate": 3},
-        "Humidity": {"range": (0, 100), "rate": 1},
+        "Humidity": {"range": (0, 100), "rate": 2},
         "Pressure": {"range": (900, 1100), "rate": 3},
         "WindSpeed": {"range": (0, 150), "rate": 2},
     }

@@ -24,6 +24,7 @@ builder.Services.AddSingleton<DataService>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<RabbitMqService>();
 builder.Services.AddHostedService<RabbitMqBackgroundService>();
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAllOrigins",
@@ -52,6 +53,8 @@ var app = builder.Build();
 app.UseCors("AllowAllOrigins");
 
 app.UseRouting();
+
+app.UseWebSockets();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

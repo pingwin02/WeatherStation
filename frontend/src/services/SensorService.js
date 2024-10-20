@@ -1,4 +1,6 @@
 const API_BASE_URL = process.env.BACKEND_URL || "http://localhost:8000/api";
+const WEB_SOCKET_URL = process.env.WEB_SOCKET_URL || "http://localhost:8000/ws";
+
 export const getSensors = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/sensors`);
@@ -12,6 +14,7 @@ export const getSensors = async () => {
     return [];
   }
 };
+
 export const getData = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/data`);
@@ -25,6 +28,7 @@ export const getData = async () => {
     return [];
   }
 };
+
 export const getRecentMeasurement = async (sensorId) => {
   try {
     const response = await fetch(
@@ -55,6 +59,17 @@ export const getSensorData = async (sensorId) => {
   }
 };
 
+export const initWebSocket = (onMessageReceived) => {
+  const socket = new WebSocket(WEB_SOCKET_URL);
+
+  socket.onmessage = (event) => {
+    const newData = JSON.parse(event.data);
+    onMessageReceived(newData);
+  };
+
+  return socket;
+};
+
 export const getSensorInformation = async (sensorId) => {
   try {
     const response = await fetch(`${API_BASE_URL}/sensors/${sensorId}`);
@@ -68,4 +83,3 @@ export const getSensorInformation = async (sensorId) => {
     return [];
   }
 };
-
