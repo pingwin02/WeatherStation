@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { getSensors, getData } from '../services/sensorService';
-import './SensorDataTable.css'; // Import for CSS styling
+import './styles/SensorDataTable.css'; // Import for CSS styling
 
 const SensorDataTable = () => {
     const [allData, setAllData] = useState([]); // Pełny zbiór danych

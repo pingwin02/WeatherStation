@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { getSensors, getRecentMeasurement, getSensorDetails } from '../services/sensorService';
 import FilterForm from './FilterForm';
-import './SensorList.css'; // Import the CSS file for styling
+import './styles/SensorList.css'; // Import the CSS file for styling
 
 const SensorList = () => {
     const [sensors, setSensors] = useState([]);

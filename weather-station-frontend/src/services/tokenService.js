@@ -1,8 +1,15 @@
 import axios from 'axios';
 
-const API_URL = '/api/tokens';
-
 export const getTokenBalance = async (sensorAddress) => {
-    const response = await axios.get(`${API_URL}/balance/${sensorAddress}`);
-    return response.data;
+    try {
+        const response = await fetch(`http://localhost:8000/api/sensors/${sensorAddress}/tokens`);
+        if (!response.ok) {
+            throw new Error(`Error: ${response.status} ${response.statusText}`);
+        }
+        const data = await response.json();
+        return data;
+    } catch (error) {
+        console.error("Error fetching token balance:", error);
+        return [];
+    }
 };

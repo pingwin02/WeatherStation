@@ -1,32 +1,54 @@
 import React, { useEffect, useState } from 'react';
 import { getTokenBalance } from '../services/tokenService';
+import { getSensors } from '../services/sensorService';
+import './styles/TokenBalance.css'; // Assuming you're using an external CSS file
 
 const TokenBalance = () => {
     const [tokenBalances, setTokenBalances] = useState([]);
 
     useEffect(() => {
         const fetchData = async () => {
-            const sensorAddresses = ['0x...', '0x...']; // Add sensor addresses here
-            const balances = await Promise.all(sensorAddresses.map(async address => {
-                const balance = await getTokenBalance(address);
-                return { address, balance };
-            }));
-            setTokenBalances(balances);
+            try {
+                const sensorData = await getSensors();
+                if (!sensorData) {
+                    throw new Error("Sensor data is undefined");
+                }
+                const sensorsWithData = await Promise.all(sensorData.map(async sensor => {
+                    const tokenBalance = await getTokenBalance(sensor.id);
+                    return { ...sensor, balance: tokenBalance.Balance };
+                }));
+                setTokenBalances(sensorsWithData);
+            } catch (error) {
+                console.error("Error fetching sensor data:", error);
+            }
         };
 
         fetchData();
     }, []);
 
     return (
-        <div>
+        <div className="table-container">
             <h1>Token Balances</h1>
-            <ul>
-                {tokenBalances.map(({ address, balance }) => (
-                    <li key={address}>
-                        Sensor {address}: {balance} tokens
-                    </li>
-                ))}
-            </ul>
+            <table className="styled-table">
+                <thead>
+                    <tr>
+                        <th>Sensor Id</th>
+                        <th>Sensor Name</th>
+                        <th>Sensor Wallet Address</th>
+                        <th>Token Balance</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {tokenBalances.map(sensor => (
+                        <tr key={sensor.id}>
+                            <td>{sensor.id}</td>
+                            <td>{sensor.name}</td>
+                            <td>{sensor.wallet_address}</td>
+                            <td>{sensor.balance}</td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
         </div>
     );
 };
