@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSensors, getData } from "../services/sensorService";
+import { getSensors, getData } from "../services/SensorService";
 import "./styles/SensorDataTable.css";
 
 const SensorDataTable = () => {
@@ -115,19 +115,19 @@ const SensorDataTable = () => {
   };
 
   const getUnit = (sensorType) => {
-        switch (sensorType.toLowerCase()) {
-            case 'windspeed':
-                return 'km/h';
-            case 'pressure':
-                return 'hPa';
-            case 'temperature':
-                return '°C';
-            case 'humidity':
-                return 'g/m³';
-            default:
-                return '';
-        }
-    };
+    switch (sensorType.toLowerCase()) {
+      case "windspeed":
+        return "km/h";
+      case "pressure":
+        return "hPa";
+      case "temperature":
+        return "°C";
+      case "humidity":
+        return "g/m³";
+      default:
+        return "";
+    }
+  };
 
   const startIndex = (currentPage - 1) * itemsPerPage;
   const paginatedData = filteredData.slice(
@@ -213,9 +213,9 @@ const SensorDataTable = () => {
                 <td>{data.sensorName}</td>
                 <td>{data.sensorType}</td>
                 <td>
-                    <span title={`Unit: ${getUnit(data.sensorType)}`}>
-                        {data.value.toFixed(2)}
-                    </span>
+                  <span title={`Unit: ${getUnit(data.sensorType)}`}>
+                    {data.value.toFixed(2)}
+                  </span>
                 </td>
                 <td>{new Date(data.timestamp).toLocaleString()}</td>
               </tr>

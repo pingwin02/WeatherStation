@@ -2,19 +2,13 @@ import React, { useEffect, useState } from "react";
 import {
   getSensors,
   getRecentMeasurement,
-  getSensorDetails,
-} from "../services/sensorService";
+  getSensorData,
+} from "../services/SensorService";
 import FilterForm from "./FilterForm";
 import "./styles/SensorList.css";
 
 const SensorList = () => {
   const [sensors, setSensors] = useState([]);
-  const [filter, setFilter] = useState({
-    startDate: "",
-    endDate: "",
-    sensorType: "",
-    sensorInstance: "",
-  });
   const [collapsed, setCollapsed] = useState({
     Temperature: true,
     WindSpeed: true,
@@ -38,8 +32,8 @@ const SensorList = () => {
         const sensorsWithData = await Promise.all(
           sensorData.map(async (sensor) => {
             const recentData = await getRecentMeasurement(sensor.id);
-            const sensorDetails = await getSensorDetails(sensor.id);
-            const average = calculateAverage(sensorDetails.slice(-100));
+            const sensorData = await getSensorData(sensor.id);
+            const average = calculateAverage(sensorData.slice(-100));
             return { ...sensor, recentData, average };
           }),
         );

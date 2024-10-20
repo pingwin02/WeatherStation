@@ -87,11 +87,11 @@ public class RabbitMqService : IDisposable
                 _logger.LogInformation($"Received message: {message}");
                 var data = BsonSerializer.Deserialize<DataEntity>(message);
                 await _dataService.AddAsync(data);
-                QueueTransaction(new Transaction
-                {
-                    SensorId = data.SensorId,
-                    Amount = _awardAmount
-                });
+                // QueueTransaction(new Transaction
+                // {
+                //     SensorId = data.SensorId,
+                //     Amount = _awardAmount
+                // });
             }
             catch (Exception ex)
             {

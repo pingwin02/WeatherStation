@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Line } from "react-chartjs-2";
-import { getSensorDetails } from "../services/sensorService";
+import { getSensorData } from "../services/SensorService";
 import { useParams } from "react-router-dom";
 import { Chart, registerables } from "chart.js";
 
@@ -18,7 +18,7 @@ const SensorDetails = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getSensorDetails(sensorId);
+      const data = await getSensorData(sensorId);
       setSensorData(data.slice(-100));
       setAverage(getAverage(data.slice(-100)));
     };

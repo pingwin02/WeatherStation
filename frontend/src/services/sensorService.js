@@ -28,7 +28,7 @@ export const getData = async () => {
 export const getRecentMeasurement = async (sensorId) => {
   try {
     const response = await fetch(
-      `${API_BASE_URL}/data?sensorId=${sensorId}&sortBy=timestamp&sortOrder=desc&limit=1`
+      `${API_BASE_URL}/data?sensorId=${sensorId}&sortBy=timestamp&sortOrder=desc&limit=1`,
     );
     if (!response.ok) {
       throw new Error(`HTTP error! Status: ${response.status}`);
@@ -41,8 +41,7 @@ export const getRecentMeasurement = async (sensorId) => {
   }
 };
 
-
-export const getSensorDetails = async (sensorId) => {
+export const getSensorData = async (sensorId) => {
   try {
     const response = await fetch(`${API_BASE_URL}/data?sensorId=${sensorId}`);
     if (!response.ok) {
@@ -51,7 +50,7 @@ export const getSensorDetails = async (sensorId) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching sensor details:", error);
+    console.error("Error fetching sensor data:", error);
     return [];
   }
 };
