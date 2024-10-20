@@ -440,7 +440,7 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-GeneratorScript/venv
+venv
 
 /**/Exports/*.csv
 /**/Exports/*.json
