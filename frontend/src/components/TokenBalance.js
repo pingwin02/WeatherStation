@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import { getTokenBalance } from "../services/tokenService";
-import { getSensors } from "../services/sensorService";
+import { getTokenBalance } from "../services/TokenService";
+import { getSensors } from "../services/SensorService";
 import "./styles/TokenBalance.css";
 
 const TokenBalance = () => {
@@ -18,7 +18,7 @@ const TokenBalance = () => {
           sensorData.map(async (sensor) => {
             const tokenBalance = await getTokenBalance(sensor.id);
             return { ...sensor, balance: tokenBalance.Balance };
-          })
+          }),
         );
         setTokenBalances(sensorsWithData);
       } catch (error) {

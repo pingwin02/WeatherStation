@@ -3,7 +3,10 @@ import { useParams } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 import "./styles/SensorDetails.css";
-import { getSensorDetails, getSensorInformation } from "../services/sensorService";
+import {
+  getSensorDetails,
+  getSensorInformation,
+} from "../services/SensorService";
 
 const SensorDetails = () => {
   const { id: sensorId } = useParams();

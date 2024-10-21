@@ -3,10 +3,10 @@ import {
   getSensors,
   getRecentMeasurement,
   getSensorDetails,
-} from "../services/sensorService";
-import "./styles/SensorList.css";
+} from "../services/SensorService";
+import "./styles/Dashboard.css";
 
-const SensorList = () => {
+const Dashboard = () => {
   const [sensors, setSensors] = useState([]);
   const [collapsed, setCollapsed] = useState({
     Temperature: true,
@@ -160,4 +160,4 @@ const SensorList = () => {
   );
 };
 
-export default SensorList;
+export default Dashboard;

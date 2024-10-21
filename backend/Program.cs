@@ -26,8 +26,8 @@ builder.Services.AddSingleton<RabbitMqService>();
 builder.Services.AddHostedService<RabbitMqBackgroundService>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy(name: "AllowAllOrigins",
-        configurePolicy: policy =>
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
         {
             policy.AllowAnyOrigin()
                 .AllowAnyHeader()

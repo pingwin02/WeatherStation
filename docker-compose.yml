@@ -34,8 +34,6 @@ services:
     environment:
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_PORT: "5672"
-    volumes:
-      - ./backend/Exports:/app/Exports
 
   frontend:
     container_name: frontend

@@ -442,7 +442,4 @@ fabric.properties
 
 venv
 
-/**/Exports/*.csv
-/**/Exports/*.json
-
 # End of https://www.toptal.com/developers/gitignore/api/rider,csharp

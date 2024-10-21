@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
@@ -37,6 +38,7 @@ public class DataService
     public async Task<List<DataEntity>> GetFilteredDataAsync(
         string? sensorType,
         string? sensorId,
+        string? sensorName,
         DateTime? startDate,
         DateTime? endDate,
         string? limit,
@@ -51,7 +53,27 @@ public class DataService
             query = query.Where(data => sensorIds.Select(s => s.Id).Contains(data.SensorId));
         }
 
-        if (!string.IsNullOrEmpty(sensorId)) query = query.Where(data => data.SensorId == sensorId);
+        if (!string.IsNullOrEmpty(sensorId))
+        {
+            var sensorIds = await _sensorService.GetAsync();
+            var matchingSensorIds = sensorIds
+                .Where(s => s.Id!.Contains(sensorId))
+                .Select(s => s.Id)
+                .ToList();
+
+            query = query.Where(data => matchingSensorIds.Contains(data.SensorId));
+        }
+
+        if (!string.IsNullOrEmpty(sensorName))
+        {
+            var sensorIds = await _sensorService.GetAsync();
+            var matchingSensorIds = sensorIds
+                .Where(s => s.Name!.Contains(sensorName))
+                .Select(s => s.Id)
+                .ToList();
+
+            query = query.Where(data => matchingSensorIds.Contains(data.SensorId));
+        }
 
         if (startDate.HasValue)
             query = query.Where(data => data.Timestamp >= startDate.Value);
@@ -60,6 +82,9 @@ public class DataService
             query = query.Where(data => data.Timestamp <= endDate.Value);
 
         if (!string.IsNullOrEmpty(sortBy))
+        {
+            var sensors = await _sensorService.GetAsync();
+
             query = sortBy switch
             {
                 "value" => sortOrder == "desc"
@@ -68,10 +93,24 @@ public class DataService
                 "timestamp" => sortOrder == "desc"
                     ? query.OrderByDescending(data => data.Timestamp)
                     : query.OrderBy(data => data.Timestamp),
-                _ => throw new ArgumentException("Invalid sortBy field. Please use 'value' or 'timestamp'.")
+                "sensorId" => sortOrder == "desc"
+                    ? query.OrderByDescending(data => data.SensorId)
+                    : query.OrderBy(data => data.SensorId),
+                "sensorType" => sortOrder == "desc"
+                    ? query.OrderByDescending(data => sensors.FirstOrDefault(s => s.Id == data.SensorId)!.Type)
+                    : query.OrderBy(data => sensors.FirstOrDefault(s => s.Id == data.SensorId)!.Type),
+                "sensorName" => sortOrder == "desc"
+                    ? query.OrderByDescending(data => sensors.FirstOrDefault(s => s.Id == data.SensorId)!.Name)
+                    : query.OrderBy(data => sensors.FirstOrDefault(s => s.Id == data.SensorId)!.Name),
+                _ => throw new ArgumentException(
+                    "Invalid sortBy field. Please use 'value', 'timestamp', 'sensorId', 'sensorType', or 'sensorName'.")
             };
+        }
         else if (!string.IsNullOrEmpty(sortOrder))
-            throw new ArgumentException("Sort order requires a sortBy field. Please use 'value' or 'timestamp'.");
+        {
+            throw new ArgumentException(
+                "Sort order requires a sortBy field. Please use 'value', 'timestamp', 'sensorId', 'sensorType', or 'sensorName'.");
+        }
 
         if (int.TryParse(limit, out var limitValue) && limitValue > 0) query = query.Take(limitValue);
 
@@ -79,11 +118,10 @@ public class DataService
     }
 
 
-    public async Task<string> ExportToCsvAsync(List<DataEntity> data)
+    public async Task<Stream> ExportToCsvAsync(List<DataEntity> data)
     {
-        var csvFilePath = Path.Combine("Exports", $"data_{DateTime.Now:yyyyMMddHHmmss}.csv");
-
-        using (var writer = new StreamWriter(csvFilePath))
+        var memoryStream = new MemoryStream();
+        using (var writer = new StreamWriter(memoryStream, leaveOpen: true))
         {
             await writer.WriteLineAsync("Id,SensorId,Value,Timestamp");
             foreach (var item in data)
@@ -93,17 +131,18 @@ public class DataService
                                             $"{item.Timestamp:yyyy-MM-ddTHH:mm:ss.fffZ}");
         }
 
-        return csvFilePath;
+        memoryStream.Position = 0;
+        return memoryStream;
     }
 
-    public async Task<string> ExportToJsonAsync(List<DataEntity> data)
+    public async Task<Stream> ExportToJsonAsync(List<DataEntity> data)
     {
-        var jsonFilePath = Path.Combine("Exports", $"data_{DateTime.Now:yyyyMMddHHmmss}.json");
-
+        var memoryStream = new MemoryStream();
         var json = JsonConvert.SerializeObject(data, Formatting.Indented);
-        await File.WriteAllTextAsync(jsonFilePath, json);
-
-        return jsonFilePath;
+        var bytes = Encoding.UTF8.GetBytes(json);
+        await memoryStream.WriteAsync(bytes, 0, bytes.Length);
+        memoryStream.Position = 0;
+        return memoryStream;
     }
 
     public async Task AddAsync(DataEntity newData)
