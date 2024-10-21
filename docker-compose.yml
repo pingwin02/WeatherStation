@@ -2,6 +2,7 @@
 
 services:
   rabbitmq:
+    container_name: rabbitmq
     image: rabbitmq:4.0.2-management
     ports:
       - "5672:5672"
@@ -11,6 +12,7 @@ services:
       RABBITMQ_DEFAULT_PASS: "admin"
   
   mongodb:
+    container_name: mongodb
     image: mongo:8.0.0
     ports:
       - "27017:27017"
@@ -19,10 +21,11 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: "admin"
   
   backend:
-    image: weatherstation
+    container_name: backend
+    image: weatherstation-backend
     build:
       context: .
-      dockerfile: WeatherStationBackend/Dockerfile
+      dockerfile: backend/Dockerfile
     ports:
       - "8000:8000"
     depends_on:
@@ -31,6 +34,16 @@ services:
     environment:
       RABBITMQ_HOST: "rabbitmq"
       RABBITMQ_PORT: "5672"
-    volumes:
-      - ./WeatherStationBackend/Exports:/app/Exports
-  
+
+  frontend:
+    container_name: frontend
+    image: weatherstation-frontend
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+    ports:
+      - '3000:3000'
+    depends_on:
+      - backend
+    environment:
+      BACKEND_URL: "http://backend:8000/api"

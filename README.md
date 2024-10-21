@@ -3,14 +3,12 @@
 ## To start the app:
 1. Clone the repository
 2. Run `docker compose up --build` in the root directory
-3. Open `http://localhost:8000/api/sensors` in your browser
-4. Go to the GeneratorScript directory
-5. Run `python3 -m venv venv`
-6. Run `source venv/bin/activate`
-7. Run `pip install -r requirements.txt`
-8. Run `python3 main.py`
-9. Refresh `http://localhost:8000/api/sensors` in your browser to see the results
-10. To stop the app, run `docker compose down -v` in the root directory. It will remove the database volume as well.
+3. Access the app at `http://localhost:3000`
+4. Run this command to start the generator script:
+   ```
+   cd generator && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt && python main.py
+   ```
+5. To stop the app, run `docker compose down -v` in the root directory
 
 
 ## API Endpoints
@@ -22,11 +20,12 @@
     - Query Parameters:
         - `sensorType` (optional): The type of sensor (e.g., `Temperature`, `Humidity`, `Pressure`, `WindSpeed`).
         - `sensorId` (optional): The ID of the sensor.
+        - `sensorName` (optional): The name of the sensor.
         - `startDate` (optional): The start date for filtering data (format: `YYYY-MM-DDTHH:MM:SS`).
         - `endDate` (optional): The end date for filtering data (format: `YYYY-MM-DDTHH:MM:SS`).
         - `limit` (optional): The maximum number of records to return.
-        - `sortBy` (optional): The field to sort by (e.g., `timestamp`, `value`).
-        - `sortOrder` (optional): The sort order (e.g., `asc`, `desc`).
+        - `sortBy` (optional): The field to sort by.
+        - `sortOrder` (optional): The sort order (`asc` or `desc`).
         - `export` (optional): Export the data to a CSV or JSON file (e.g., `csv`, `json`).
 
 ### Sensor

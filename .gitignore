@@ -440,9 +440,6 @@ crashlytics.properties
 crashlytics-build.properties
 fabric.properties
 
-GeneratorScript/venv
-
-/**/Exports/*.csv
-/**/Exports/*.json
+venv
 
 # End of https://www.toptal.com/developers/gitignore/api/rider,csharp

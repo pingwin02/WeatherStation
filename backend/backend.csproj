@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DocumentationFile>bin\Debug\WeatherStationBackend.xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\backend.xml</DocumentationFile>
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DocumentationFile>bin\Release\WeatherStationBackend.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\backend.xml</DocumentationFile>
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
 
@@ -28,16 +28,6 @@
         <PackageReference Include="Nethereum.Web3" Version="4.26.0"/>
         <PackageReference Include="RabbitMQ.Client" Version="6.2.2"/>
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.8.1"/>
-    </ItemGroup>
-
-    <ItemGroup>
-        <_ContentIncludedByDefault Remove="Views\Home\Index.cshtml"/>
-        <_ContentIncludedByDefault Remove="Views\Home\Privacy.cshtml"/>
-        <_ContentIncludedByDefault Remove="Views\Shared\Error.cshtml"/>
-        <_ContentIncludedByDefault Remove="Views\Shared\_Layout.cshtml"/>
-        <_ContentIncludedByDefault Remove="Views\Shared\_ValidationScriptsPartial.cshtml"/>
-        <_ContentIncludedByDefault Remove="Views\_ViewImports.cshtml"/>
-        <_ContentIncludedByDefault Remove="Views\_ViewStart.cshtml"/>
     </ItemGroup>
 
 </Project>
