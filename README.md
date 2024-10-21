@@ -3,7 +3,7 @@
 ## To start the app:
 1. Clone the repository
 2. Run `docker compose up --build` in the root directory
-3. Access the app at `http://localhost:3000`
+3. Access the app at `http://localhost`
 4. Run this command to start the generator script:
    ```
    cd generator && python -m venv venv && source venv/bin/activate && pip install -r requirements.txt && python main.py

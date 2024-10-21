@@ -1,4 +1,5 @@
 ﻿using System.Globalization;
+using System.Text;
 using System.Text.Json;
 using backend.Configuration;
 using backend.Controllers;
@@ -136,7 +137,10 @@ public class DataService
     public async Task<Stream> ExportToJsonAsync(List<DataEntity> data)
     {
         var memoryStream = new MemoryStream();
-        var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
         var bytes = Encoding.UTF8.GetBytes(json);
         await memoryStream.WriteAsync(bytes, 0, bytes.Length);
         memoryStream.Position = 0;

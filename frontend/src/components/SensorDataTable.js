@@ -17,6 +17,17 @@ import {
 } from "chart.js";
 import "./styles/SensorDataTable.css";
 
+const chartColors = [
+  "rgba(255, 99, 132, 1)",
+  "rgba(54, 162, 235, 1)",
+  "rgba(255, 206, 86, 1)",
+  "rgba(75, 192, 192, 1)",
+  "rgba(153, 102, 255, 1)",
+  "rgba(255, 159, 64, 1)",
+];
+
+const ITEMS_PER_PAGE = 16;
+
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -39,19 +50,8 @@ const SensorDataTable = () => {
     endDate: "",
     limit: "",
     sortBy: "timestamp",
-    sortOrder: "desc",
+    sortOrder: "asc",
   });
-
-  const chartColors = [
-    "rgba(255, 99, 132, 1)",
-    "rgba(54, 162, 235, 1)",
-    "rgba(255, 206, 86, 1)",
-    "rgba(75, 192, 192, 1)",
-    "rgba(153, 102, 255, 1)",
-    "rgba(255, 159, 64, 1)",
-  ];
-
-  const itemsPerPage = 16;
 
   const fetchAllData = async () => {
     try {
@@ -223,7 +223,7 @@ const SensorDataTable = () => {
       endDate: "",
       limit: "",
       sortBy: "timestamp",
-      sortOrder: "desc",
+      sortOrder: "asc",
     });
   };
 
@@ -302,12 +302,12 @@ const SensorDataTable = () => {
     return chartsData;
   };
 
-  const startIndex = (currentPage - 1) * itemsPerPage;
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const paginatedData = filteredData.slice(
     startIndex,
-    startIndex + itemsPerPage,
+    startIndex + ITEMS_PER_PAGE,
   );
-  const totalPages = Math.ceil(filteredData.length / itemsPerPage);
+  const totalPages = Math.ceil(filteredData.length / ITEMS_PER_PAGE);
 
   const getPaginationRange = () => {
     const range = [];
