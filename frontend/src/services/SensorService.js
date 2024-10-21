@@ -14,7 +14,6 @@ export const getSensors = async () => {
     return [];
   }
 };
-
 export const getData = async () => {
   try {
     const response = await fetch(`${API_BASE_URL}/data`);
@@ -28,7 +27,6 @@ export const getData = async () => {
     return [];
   }
 };
-
 export const getRecentMeasurement = async (sensorId) => {
   try {
     const response = await fetch(

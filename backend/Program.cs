@@ -24,6 +24,16 @@ builder.Services.AddSingleton<DataService>();
 builder.Services.AddSingleton<TokenService>();
 builder.Services.AddSingleton<RabbitMqService>();
 builder.Services.AddHostedService<RabbitMqBackgroundService>();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
 
 builder.Services.AddCors(options =>
 {
