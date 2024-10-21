@@ -5,7 +5,6 @@ import {
   getSensorData,
   initWebSocket,
 } from "../services/SensorService";
-import FilterForm from "./FilterForm";
 import "./styles/Dashboard.css";
 
 const HISTORY_LIMIT = 100;

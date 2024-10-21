@@ -20,7 +20,6 @@ public class TokenController : ControllerBase
     ///     Retrieves the token balance for a given sensor ID.
     /// </summary>
     /// <param name="id">The unique identifier of the sensor.</param>
-    /// <returns>A JSON object containing the sensor's wallet address and balance in tokens.</returns>
     /// <response code="200">Balance successfully retrieved.</response>
     /// <response code="400">Invalid sensor ID format.</response>
     /// <response code="404">Sensor not found.</response>

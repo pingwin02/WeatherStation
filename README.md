@@ -20,11 +20,12 @@
     - Query Parameters:
         - `sensorType` (optional): The type of sensor (e.g., `Temperature`, `Humidity`, `Pressure`, `WindSpeed`).
         - `sensorId` (optional): The ID of the sensor.
+        - `sensorName` (optional): The name of the sensor.
         - `startDate` (optional): The start date for filtering data (format: `YYYY-MM-DDTHH:MM:SS`).
         - `endDate` (optional): The end date for filtering data (format: `YYYY-MM-DDTHH:MM:SS`).
         - `limit` (optional): The maximum number of records to return.
-        - `sortBy` (optional): The field to sort by (e.g., `timestamp`, `value`).
-        - `sortOrder` (optional): The sort order (e.g., `asc`, `desc`).
+        - `sortBy` (optional): The field to sort by.
+        - `sortOrder` (optional): The sort order (`asc` or `desc`).
         - `export` (optional): Export the data to a CSV or JSON file (e.g., `csv`, `json`).
 
 ### Sensor

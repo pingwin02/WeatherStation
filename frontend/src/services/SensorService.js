@@ -24,7 +24,7 @@ export const getData = async () => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching sensors:", error);
+    console.error("Error fetching data:", error);
     return [];
   }
 };
@@ -79,7 +79,20 @@ export const getSensorInformation = async (sensorId) => {
     const data = await response.json();
     return data;
   } catch (error) {
-    console.error("Error fetching sensor details:", error);
+    console.error("Error fetching sensor information:", error);
+    return [];
+  }
+};
+
+export const getDataFiltered = async (queryString) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/data${queryString}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    return response;
+  } catch (error) {
+    console.error("Error fetching filtered data:", error);
     return [];
   }
 };
