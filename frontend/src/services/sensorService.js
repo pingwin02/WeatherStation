@@ -69,3 +69,18 @@ export const getSensorInformation = async (sensorId) => {
   }
 };
 
+export const getFilteredDataTable = async (queryString) => {
+  try {
+    const response = await fetch(`${API_BASE_URL}/data${queryString}`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! Status: ${response.status}`);
+    }
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error("Error fetching sensor details:", error);
+    return [];
+  }
+};
+
+

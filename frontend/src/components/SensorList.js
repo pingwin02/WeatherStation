@@ -4,17 +4,10 @@ import {
   getRecentMeasurement,
   getSensorDetails,
 } from "../services/sensorService";
-import FilterForm from "./FilterForm";
 import "./styles/SensorList.css";
 
 const SensorList = () => {
   const [sensors, setSensors] = useState([]);
-  const [filter, setFilter] = useState({
-    startDate: "",
-    endDate: "",
-    sensorType: "",
-    sensorInstance: "",
-  });
   const [collapsed, setCollapsed] = useState({
     Temperature: true,
     WindSpeed: true,

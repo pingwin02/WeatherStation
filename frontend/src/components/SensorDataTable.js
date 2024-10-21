@@ -1,18 +1,42 @@
 import React, { useEffect, useState } from "react";
-import { getSensors, getData } from "../services/sensorService";
+import { getSensors, getData, getFilteredDataTable, getDownloadFile } from "../services/sensorService";
+import { Line } from "react-chartjs-2";
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+} from 'chart.js';
 import "./styles/SensorDataTable.css";
 
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+
 const SensorDataTable = () => {
-  const [allData, setAllData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [viewMode, setViewMode] = useState("table");
   const [filters, setFilters] = useState({
-    sensorName: "",
+    sensorId: "",
     sensorType: "",
     startDate: "",
     endDate: "",
+    limit: "",
+    sortBy: "timestamp",
+    sortOrder: "asc",
   });
-  const [sortConfig, setSortConfig] = useState({ key: "", direction: "asc" });
+
+  const chartColors = [
+    'rgba(255, 99, 132, 1)',   // Red
+    'rgba(54, 162, 235, 1)',   // Blue
+    'rgba(255, 206, 86, 1)',   // Yellow
+    'rgba(75, 192, 192, 1)',   // Green
+    'rgba(153, 102, 255, 1)',  // Purple
+    'rgba(255, 159, 64, 1)'    // Orange
+  ];
 
   const itemsPerPage = 16;
 
@@ -33,7 +57,6 @@ const SensorDataTable = () => {
         };
       });
 
-      setAllData(mergedData);
       setFilteredData(mergedData);
     } catch (error) {
       console.error("Error fetching data:", error);
@@ -44,96 +67,164 @@ const SensorDataTable = () => {
     fetchAllData();
   }, []);
 
-  const filterData = () => {
-    const { sensorName, sensorType, startDate, endDate } = filters;
-    let filtered = allData;
-
-    if (sensorName) {
-      filtered = filtered.filter((data) =>
-        data.sensorName.toLowerCase().includes(sensorName.toLowerCase()),
-      );
-    }
-    if (sensorType) {
-      filtered = filtered.filter((data) =>
-        data.sensorType.toLowerCase().includes(sensorType.toLowerCase()),
-      );
-    }
-    if (startDate) {
-      filtered = filtered.filter(
-        (data) => new Date(data.timestamp) >= new Date(startDate),
-      );
-    }
-    if (endDate) {
-      filtered = filtered.filter(
-        (data) => new Date(data.timestamp) <= new Date(endDate),
-      );
-    }
-
-    setFilteredData(filtered);
+  const filterData = async (format) => {
+    const { sensorId, sensorType, startDate, endDate, limit, sortBy, sortOrder } = filters;
+    let params = [];
+  
+    // Adjust startDate and endDate by subtracting or adding 2 hours for proper timezone alignment
+    const startDateAdjusted = startDate ? new Date(new Date(startDate).getTime()).toISOString() : '';
+    const endDateAdjusted = endDate ? new Date(new Date(endDate).getTime()).toISOString() : '';
+  
+    // Add query parameters
+    if (sensorId) params.push(`sensorId=${sensorId}`);
+    if (sensorType) params.push(`sensorType=${sensorType}`);
+    if (startDate) params.push(`startDate=${startDateAdjusted}`);
+    if (endDate) params.push(`endDate=${endDateAdjusted}`);
+    if (limit) params.push(`limit=${limit}`);
+    if (sortBy) params.push(`sortBy=${sortBy}`);
+    if (sortOrder) params.push(`sortOrder=${sortOrder}`);
+  
+    const queryString = params.length ? `?${params.join("&")}` : "";
+  
+    // Fetch filtered data
+    const filteredDataTable = await getFilteredDataTable(queryString);
+    const sensors = await getSensors();
+  
+    // Merge the filtered data with sensor information
+    const mergedData = filteredDataTable.map((item) => {
+      const sensor = sensors.find((sensor) => sensor.id === item.sensorId);
+      return {
+        ...item,
+        sensorName: sensor ? sensor.name : "Unknown",
+        sensorType: sensor ? sensor.type : "Unknown",
+      };
+    });
+  
+    // Update state with the filtered data
+    setFilteredData(mergedData);
     setCurrentPage(1);
-  };
 
-  const handleFilterChange = (e) => {
-    setFilters({
-      ...filters,
-      [e.target.name]: e.target.value,
-    });
-  };
-
-  useEffect(() => {
-    filterData();
-  }, [filters, allData]);
-
-  const sortData = (key) => {
-    let direction = "asc";
-    if (sortConfig.key === key && sortConfig.direction === "asc") {
-      direction = "desc";
+    if (format === "json" || format === "csv") {
+      const downloadQuery = `${queryString}&export=${format}`; // Adjust as needed
+      await getFilteredDataTable(downloadQuery);
     }
-    setSortConfig({ key, direction });
-
-    const sortedData = [...filteredData].sort((a, b) => {
-      if (key === "value") {
-        return direction === "asc" ? a.value - b.value : b.value - a.value;
-      } else if (key === "timestamp") {
-        return direction === "asc"
-          ? new Date(a.timestamp) - new Date(b.timestamp)
-          : new Date(b.timestamp) - new Date(a.timestamp);
-      } else {
-        const aValue = a[key] ? a[key].toString().toLowerCase() : "";
-        const bValue = b[key] ? b[key].toString().toLowerCase() : "";
-        if (aValue < bValue) return direction === "asc" ? -1 : 1;
-        if (aValue > bValue) return direction === "asc" ? 1 : -1;
-        return 0;
-      }
-    });
-
-    setFilteredData(sortedData);
   };
+  
+
+  const options = {
+    responsive: true,
+    plugins: {
+      tooltip: {
+        callbacks: {
+          label: function(tooltipItem) {
+            let label = tooltipItem.dataset.label || '';
+            if (label) {
+              label += ': ';
+            }
+            label += `${tooltipItem.raw}`; // Display the raw value of the data point
+            return label;
+          }
+        }
+      }
+    },
+    scales: {
+      x: {
+        title: {
+          display: true,
+          text: 'Timestamp'
+        }
+      },
+      y: {
+        title: {
+          display: true,
+          text: 'Value'
+        }
+      }
+    }
+  };
+  
+  
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
   };
 
+  const handleFilterChange = (e) => {
+    const { name, value } = e.target;
+    setFilters((prevFilters) => ({
+      ...prevFilters,
+      [name]: value,
+    }));
+  };
+
+  const handleViewToggle = () => {
+    setViewMode(viewMode === "table" ? "chart" : "table");
+  };
+
+  const handleDownload = async (format) => {
+    await filterData(format);
+  };
+
   const getUnit = (sensorType) => {
-    switch (sensorType.toLowerCase()) {
-      case "windspeed":
+    switch (sensorType) {
+      case "WindSpeed":
         return "km/h";
-      case "pressure":
+      case "Pressure":
         return "hPa";
-      case "temperature":
+      case "Temperature":
         return "°C";
-      case "humidity":
+      case "Humidity":
         return "g/m³";
       default:
         return "";
     }
   };
 
+  const getAllChartData = () => {
+    const groupedData = filteredData.reduce((acc, data) => {
+      const sensorType = data.sensorType;
+
+      if (!acc[sensorType]) {
+        acc[sensorType] = {};
+      }
+
+      if (!acc[sensorType][data.sensorName]) {
+        acc[sensorType][data.sensorName] = [];
+      }
+
+      acc[sensorType][data.sensorName].push({
+        timestamp: new Date(data.timestamp).toLocaleString(),
+        value: data.value,
+      });
+
+      return acc;
+    }, {});
+
+    const chartsData = Object.entries(groupedData).map(([sensorType, sensors]) => {
+      const datasets = Object.entries(sensors).slice(0, 4).map(([sensorName, readings], index) => {
+        return {
+          label: `${sensorName} (${sensorType})`,
+          data: readings.map(reading => reading.value),
+          borderColor: chartColors[index % chartColors.length], // Assign colors from the array
+          backgroundColor: chartColors[index % chartColors.length], // Use the same color for the background
+          fill: false,
+          tension: 0.1,
+        };
+      });
+
+      const labels = sensors[Object.keys(sensors)[0]].map(reading => reading.timestamp);
+
+      return {
+        labels: [...new Set(labels)], // Remove duplicates
+        datasets,
+      };
+    });
+
+    return chartsData;
+  };
+
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const paginatedData = filteredData.slice(
-    startIndex,
-    startIndex + itemsPerPage,
-  );
+  const paginatedData = filteredData.slice(startIndex, startIndex + itemsPerPage);
   const totalPages = Math.ceil(filteredData.length / itemsPerPage);
 
   const getPaginationRange = () => {
@@ -146,7 +237,11 @@ const SensorDataTable = () => {
       range.push("...");
     }
 
-    for (let i = Math.max(2, currentPage - maxVisiblePages); i <= Math.min(totalPages - 1, currentPage + maxVisiblePages); i++) {
+    for (
+      let i = Math.max(2, currentPage - maxVisiblePages);
+      i <= Math.min(totalPages - 1, currentPage + maxVisiblePages);
+      i++
+    ) {
       range.push(i);
     }
 
@@ -161,6 +256,9 @@ const SensorDataTable = () => {
     return range;
   };
 
+  const allChartData = getAllChartData();
+  const isSingleChart = allChartData.length === 1;
+
   return (
     <div className="sensor-data-table">
       <h1>All Sensor Data</h1>
@@ -168,109 +266,113 @@ const SensorDataTable = () => {
       <div className="filters">
         <input
           type="text"
-          name="sensorName"
-          placeholder="Filter by Sensor Name"
-          value={filters.sensorName}
+          name="sensorId"
+          placeholder="Filter by Sensor ID"
+          value={filters.sensorId}
           onChange={handleFilterChange}
         />
-        <input
-          type="text"
+        <select
           name="sensorType"
-          placeholder="Filter by Sensor Type"
           value={filters.sensorType}
           onChange={handleFilterChange}
-        />
+        >
+          <option value="">All Sensor Types</option>
+          <option value="Temperature">Temperature</option>
+          <option value="Humidity">Humidity</option>
+          <option value="Pressure">Pressure</option>
+          <option value="WindSpeed">WindSpeed</option>
+        </select>
         <input
           type="datetime-local"
           name="startDate"
+          placeholder="Start Date"
           value={filters.startDate}
           onChange={handleFilterChange}
         />
         <input
           type="datetime-local"
           name="endDate"
+          placeholder="End Date"
           value={filters.endDate}
           onChange={handleFilterChange}
         />
+        <input
+          type="number"
+          name="limit"
+          placeholder="Limit"
+          value={filters.limit}
+          onChange={handleFilterChange}
+        />
+        <button onClick={filterData}>Apply Filter</button>
+        <button onClick={handleViewToggle}>
+          {viewMode === "table" ? "Switch to Chart View" : "Switch to Table View"}
+        </button>
       </div>
+      {viewMode === "table" && (
+        <>
+          <button onClick={() => handleDownload("json")}>Download JSON</button>
+          <button onClick={() =>handleDownload("csv")}>Download CSV</button>
+        </>
+      )}
+      
 
-      <table className="sensor-table">
-        <thead>
-          <tr>
-            <th onClick={() => sortData("sensorName")}>
-              Sensor Name{" "}
-              {sortConfig.key === "sensorName"
-                ? sortConfig.direction === "asc"
-                  ? "▲"
-                  : "▼"
-                : ""}
-            </th>
-            <th onClick={() => sortData("sensorType")}>
-              Sensor Type{" "}
-              {sortConfig.key === "sensorType"
-                ? sortConfig.direction === "asc"
-                  ? "▲"
-                  : "▼"
-                : ""}
-            </th>
-            <th onClick={() => sortData("value")}>
-              Value{" "}
-              {sortConfig.key === "value"
-                ? sortConfig.direction === "asc"
-                  ? "▲"
-                  : "▼"
-                : ""}
-            </th>
-            <th onClick={() => sortData("timestamp")}>
-              Timestamp{" "}
-              {sortConfig.key === "timestamp"
-                ? sortConfig.direction === "asc"
-                  ? "▲"
-                  : "▼"
-                : ""}
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {paginatedData.length > 0 ? (
-            paginatedData.map((data) => (
-              <tr key={data.id}>
-                <td>{data.sensorName}</td>
-                <td>{data.sensorType}</td>
-                <td>
-                  <span title={`Unit: ${getUnit(data.sensorType)}`}>
-                    {data.value.toFixed(2)}
-                  </span>
-                </td>
-                <td>{new Date(data.timestamp).toLocaleString()}</td>
+      {viewMode === "table" ? (
+        <>
+          <table className="sensor-table">
+            <thead>
+              <tr>
+                <th>Sensor ID</th>
+                <th>Sensor Name</th>
+                <th>Sensor Type</th>
+                <th>Timestamp</th>
+                <th>Value</th>
+                <th>Unit</th>
               </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan="4">No data available</td>
-            </tr>
-          )}
-        </tbody>
-      </table>
+            </thead>
+            <tbody>
+              {paginatedData.map((data) => (
+                <tr key={data.sensorId + data.timestamp}>
+                  <td>{data.sensorId}</td>
+                  <td>{data.sensorName}</td>
+                  <td>{data.sensorType}</td>
+                  <td>{new Date(data.timestamp).toLocaleString()}</td>
+                  <td>{data.value}</td>
+                  <td>{getUnit(data.sensorType)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
 
-      <div className="pagination-container">
-        <div className="pagination">
-          {getPaginationRange().map((page, index) => (
-            <span
-              key={index}
-              onClick={() => (typeof page === "number" ? handlePageChange(page) : null)}
-              style={{
-                cursor: typeof page === "number" ? "pointer" : "default",
-                fontWeight: currentPage === page ? "bold" : "normal",
-                margin: "0 5px",
-                textDecoration: currentPage === page ? "underline" : "none",
-              }}
+          <div className="pagination">
+            {getPaginationRange().map((page, index) =>
+              page === "..." ? (
+                <span key={index} className="pagination-ellipsis">...</span>
+              ) : (
+                <button
+                  key={index}
+                  className={currentPage === page ? "active" : ""}
+                  onClick={() => handlePageChange(page)}
+                >
+                  {page}
+                </button>
+              )
+            )}
+          </div>
+        </>
+      ) : (
+        <div className="charts">
+          {allChartData.map((chartData, index) => (
+            <div 
+              key={index} 
+              className={`chart-container ${isSingleChart ? 'fullscreen' : 'small'}`} 
+              style={{ width: isSingleChart ? '100%' : 'auto' }}
             >
-              {page}
-            </span>
+              <h5>{`Chart for ${chartData.datasets[0].label.split('(')[1].replace(')', '')}`}</h5>
+              <Line data={chartData} options={options} />
+            </div>
           ))}
         </div>
-      </div>
+      )}
     </div>
   );
 };
