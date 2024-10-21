@@ -8,12 +8,12 @@
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
-        <DocumentationFile>bin\Debug\WeatherStationBackend.xml</DocumentationFile>
+        <DocumentationFile>bin\Debug\backend.xml</DocumentationFile>
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
 
     <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
-        <DocumentationFile>bin\Release\WeatherStationBackend.xml</DocumentationFile>
+        <DocumentationFile>bin\Release\backend.xml</DocumentationFile>
         <NoWarn>1701;1702;1591</NoWarn>
     </PropertyGroup>
 
