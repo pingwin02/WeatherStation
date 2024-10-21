@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { getSensors, getData, getFilteredDataTable, getDownloadFile } from "../services/sensorService";
+import { getSensors, getData, getFilteredDataTable } from "../services/sensorService";
 import { Line } from "react-chartjs-2";
 import {
   Chart as ChartJS,
@@ -30,12 +30,12 @@ const SensorDataTable = () => {
   });
 
   const chartColors = [
-    'rgba(255, 99, 132, 1)',   // Red
-    'rgba(54, 162, 235, 1)',   // Blue
-    'rgba(255, 206, 86, 1)',   // Yellow
-    'rgba(75, 192, 192, 1)',   // Green
-    'rgba(153, 102, 255, 1)',  // Purple
-    'rgba(255, 159, 64, 1)'    // Orange
+    'rgba(255, 99, 132, 1)',
+    'rgba(54, 162, 235, 1)',
+    'rgba(255, 206, 86, 1)',
+    'rgba(75, 192, 192, 1)',
+    'rgba(153, 102, 255, 1)',
+    'rgba(255, 159, 64, 1)'
   ];
 
   const itemsPerPage = 16;
@@ -71,11 +71,9 @@ const SensorDataTable = () => {
     const { sensorId, sensorType, startDate, endDate, limit, sortBy, sortOrder } = filters;
     let params = [];
   
-    // Adjust startDate and endDate by subtracting or adding 2 hours for proper timezone alignment
     const startDateAdjusted = startDate ? new Date(new Date(startDate).getTime()).toISOString() : '';
     const endDateAdjusted = endDate ? new Date(new Date(endDate).getTime()).toISOString() : '';
   
-    // Add query parameters
     if (sensorId) params.push(`sensorId=${sensorId}`);
     if (sensorType) params.push(`sensorType=${sensorType}`);
     if (startDate) params.push(`startDate=${startDateAdjusted}`);
@@ -86,11 +84,9 @@ const SensorDataTable = () => {
   
     const queryString = params.length ? `?${params.join("&")}` : "";
   
-    // Fetch filtered data
     const filteredDataTable = await getFilteredDataTable(queryString);
     const sensors = await getSensors();
   
-    // Merge the filtered data with sensor information
     const mergedData = filteredDataTable.map((item) => {
       const sensor = sensors.find((sensor) => sensor.id === item.sensorId);
       return {
@@ -100,12 +96,11 @@ const SensorDataTable = () => {
       };
     });
   
-    // Update state with the filtered data
     setFilteredData(mergedData);
     setCurrentPage(1);
 
     if (format === "json" || format === "csv") {
-      const downloadQuery = `${queryString}&export=${format}`; // Adjust as needed
+      const downloadQuery = `${queryString}&export=${format}`;
       await getFilteredDataTable(downloadQuery);
     }
   };
@@ -121,7 +116,7 @@ const SensorDataTable = () => {
             if (label) {
               label += ': ';
             }
-            label += `${tooltipItem.raw}`; // Display the raw value of the data point
+            label += `${tooltipItem.raw}`;
             return label;
           }
         }
@@ -205,8 +200,8 @@ const SensorDataTable = () => {
         return {
           label: `${sensorName} (${sensorType})`,
           data: readings.map(reading => reading.value),
-          borderColor: chartColors[index % chartColors.length], // Assign colors from the array
-          backgroundColor: chartColors[index % chartColors.length], // Use the same color for the background
+          borderColor: chartColors[index % chartColors.length],
+          backgroundColor: chartColors[index % chartColors.length],
           fill: false,
           tension: 0.1,
         };
@@ -215,7 +210,7 @@ const SensorDataTable = () => {
       const labels = sensors[Object.keys(sensors)[0]].map(reading => reading.timestamp);
 
       return {
-        labels: [...new Set(labels)], // Remove duplicates
+        labels: [...new Set(labels)],
         datasets,
       };
     });
