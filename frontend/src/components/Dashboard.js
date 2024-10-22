@@ -2,9 +2,12 @@ import React, { useEffect, useState } from "react";
 import {
   getSensors,
   getRecentMeasurement,
-  getSensorDetails,
+  getSensorData,
+  initWebSocket,
 } from "../services/SensorService";
 import "./styles/Dashboard.css";
+
+const HISTORY_LIMIT = 100;
 
 const Dashboard = () => {
   const [sensors, setSensors] = useState([]);
@@ -21,28 +24,69 @@ const Dashboard = () => {
     return total / data.length;
   };
 
+  const fetchData = async () => {
+    try {
+      const sensorData = await getSensors();
+      if (!sensorData) {
+        throw new Error("Sensor data is undefined");
+      }
+      const sensorsWithData = await Promise.all(
+        sensorData.map(async (sensor) => {
+          const recentData = await getRecentMeasurement(sensor.id);
+          const allSensorData = await getSensorData(sensor.id);
+          const historicalData = allSensorData.slice(-HISTORY_LIMIT);
+          const average = calculateAverage(historicalData);
+          return { ...sensor, recentData, average, historicalData };
+        }),
+      );
+      setSensors(sensorsWithData);
+    } catch (error) {
+      console.error("Error fetching sensor data:", error);
+    }
+  };
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const sensorData = await getSensors();
-        if (!sensorData) {
-          throw new Error("Sensor data is undefined");
-        }
-        const sensorsWithData = await Promise.all(
-          sensorData.map(async (sensor) => {
-            const recentData = await getRecentMeasurement(sensor.id);
-            const sensorDetails = await getSensorDetails(sensor.id);
-            const average = calculateAverage(sensorDetails.slice(-100));
-            return { ...sensor, recentData, average };
-          }),
-        );
-        setSensors(sensorsWithData);
-      } catch (error) {
-        console.error("Error fetching sensor data:", error);
+    fetchData();
+
+    const socket = initWebSocket((incomingData) => {
+      setSensors((prevSensors) => {
+        return prevSensors.map((sensor) => {
+          if (sensor.id === incomingData.sensorId) {
+            const updatedSensor = { ...sensor };
+
+            const historicalData = updatedSensor.historicalData || [];
+            if (historicalData.length >= HISTORY_LIMIT) {
+              historicalData.shift();
+            }
+            updatedSensor.historicalData = historicalData;
+            updatedSensor.recentData = incomingData;
+
+            let lastData = incomingData;
+            if (historicalData.length > 0) {
+              lastData = historicalData[historicalData.length - 1];
+            }
+
+            updatedSensor.trend =
+              lastData.value < incomingData.value
+                ? "value-up"
+                : lastData.value > incomingData.value
+                  ? "value-down"
+                  : "equal";
+
+            historicalData.push(incomingData);
+            updatedSensor.average = calculateAverage(historicalData);
+            return updatedSensor;
+          }
+          return sensor;
+        });
+      });
+    });
+
+    return () => {
+      if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.close();
       }
     };
-
-    fetchData();
   }, []);
 
   const toggleCollapse = (type) => {
@@ -69,7 +113,7 @@ const Dashboard = () => {
           <tr>
             <th>Sensor Name</th>
             <th>Last Value</th>
-            <th>Average (Last 100)</th>
+            <th>Average (Last {HISTORY_LIMIT})</th>
             <th>Sensor Details</th>
           </tr>
         </thead>
@@ -77,7 +121,7 @@ const Dashboard = () => {
           {filteredSensors.map((sensor) => (
             <tr key={sensor.id}>
               <td>{sensor.name}</td>
-              <td>
+              <td className={sensor.trend}>
                 {sensor.recentData
                   ? sensor.recentData.value
                   : "No data available"}

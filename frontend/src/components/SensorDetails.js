@@ -3,10 +3,7 @@ import { useParams } from "react-router-dom";
 import { Line } from "react-chartjs-2";
 import "chart.js/auto";
 import "./styles/SensorDetails.css";
-import {
-  getSensorDetails,
-  getSensorInformation,
-} from "../services/SensorService";
+import { getSensorData, getSensorInformation } from "../services/SensorService";
 
 const SensorDetails = () => {
   const { id: sensorId } = useParams();
@@ -22,7 +19,7 @@ const SensorDetails = () => {
           throw new Error("Sensor information is undefined");
         }
 
-        const sensorDetails = await getSensorDetails(sensorId);
+        const sensorDetails = await getSensorData(sensorId);
         if (!sensorDetails || !Array.isArray(sensorDetails)) {
           throw new Error("Sensor data is undefined or not an array");
         }

@@ -1,18 +1,18 @@
 ﻿using System.Globalization;
 using System.Text;
+using System.Text.Json;
+using backend.Configuration;
+using backend.Controllers;
+using backend.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Driver;
 using MongoDB.Driver.Linq;
-using Newtonsoft.Json;
-using WeatherStationBackend.Configuration;
-using WeatherStationBackend.Models;
 
-namespace WeatherStationBackend.Services;
+namespace backend.Services;
 
 public class DataService
 {
     private readonly IMongoCollection<DataEntity> _dataCollection;
-    private readonly ILogger _logger;
     private readonly SensorService _sensorService;
 
     public DataService(
@@ -20,8 +20,7 @@ public class DataService
         ILogger<DataService> logger,
         SensorService sensorService)
     {
-        _logger = logger;
-        _logger.LogInformation("DataService started");
+        logger.LogInformation("DataService started");
 
         var mongoClient = new MongoClient(
             databaseSettings.Value.ConnectionString);
@@ -138,7 +137,10 @@ public class DataService
     public async Task<Stream> ExportToJsonAsync(List<DataEntity> data)
     {
         var memoryStream = new MemoryStream();
-        var json = JsonConvert.SerializeObject(data, Formatting.Indented);
+        var json = JsonSerializer.Serialize(data, new JsonSerializerOptions
+        {
+            WriteIndented = true
+        });
         var bytes = Encoding.UTF8.GetBytes(json);
         await memoryStream.WriteAsync(bytes, 0, bytes.Length);
         memoryStream.Position = 0;
@@ -148,6 +150,7 @@ public class DataService
     public async Task AddAsync(DataEntity newData)
     {
         await _dataCollection.InsertOneAsync(newData);
+        await WebSocketController.SendMessage(JsonSerializer.Serialize(newData));
     }
 
     public async Task DeleteBySensorIdAsync(string sensorId)

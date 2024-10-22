@@ -1,8 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using WeatherStationBackend.Models;
-using WeatherStationBackend.Services;
+﻿using backend.Models;
+using backend.Services;
+using Microsoft.AspNetCore.Mvc;
 
-namespace WeatherStationBackend.Controllers;
+namespace backend.Controllers;
 
 [ApiController]
 [Route("api")]

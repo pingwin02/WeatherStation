@@ -1,10 +1,10 @@
+using backend.Configuration;
+using backend.Models;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using WeatherStationBackend.Configuration;
-using WeatherStationBackend.Models;
 
-namespace WeatherStationBackend.Services;
+namespace backend.Services;
 
 public class SensorService
 {
@@ -49,7 +49,7 @@ public class SensorService
 
     public async Task<string> CreateAsync(SensorRequest newSensor)
     {
-        if (!Enum.IsDefined(typeof(SensorType), newSensor.Type))
+        if (!Enum.IsDefined(typeof(SensorType), newSensor.Type!))
             throw new ArgumentException($"Sensor type {newSensor.Type} is not valid.");
 
         var sensorToInsert = new SensorEntity
@@ -68,7 +68,7 @@ public class SensorService
 
     public async Task UpdateAsync(string id, SensorRequest updatedSensor)
     {
-        if (!Enum.IsDefined(typeof(SensorType), updatedSensor.Type))
+        if (!Enum.IsDefined(typeof(SensorType), updatedSensor.Type!))
             throw new ArgumentException($"Sensor type {updatedSensor.Type} is not valid.");
 
         var existingSensor = await _sensorsCollection.Find(x => x.Id == id).FirstOrDefaultAsync();

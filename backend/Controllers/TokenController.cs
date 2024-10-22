@@ -1,20 +1,18 @@
+using backend.Services;
 using Microsoft.AspNetCore.Mvc;
-using WeatherStationBackend.Services;
 
-namespace WeatherStationBackend.Controllers;
+namespace backend.Controllers;
 
 [ApiController]
 [Route("api/sensors")]
 public class TokenController : ControllerBase
 {
-    private readonly ILogger<TokenController> _logger;
     private readonly SensorService _sensorService;
     private readonly TokenService _tokenService;
 
-    public TokenController(TokenService tokenService, ILogger<TokenController> logger, SensorService sensorService)
+    public TokenController(TokenService tokenService, SensorService sensorService)
     {
         _tokenService = tokenService;
-        _logger = logger;
         _sensorService = sensorService;
     }
 
@@ -33,7 +31,7 @@ public class TokenController : ControllerBase
         {
             var sensor = await _sensorService.GetAsync(id);
             var sensorAddress = sensor.WalletAddress;
-            var tokenAmount = await _tokenService.GetBalanceAsync(sensorAddress);
+            var tokenAmount = await _tokenService.GetBalanceAsync(sensorAddress!);
 
             return Ok(new { SensorAddress = sensorAddress, Balance = tokenAmount });
         }

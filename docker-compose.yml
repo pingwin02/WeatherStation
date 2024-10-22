@@ -42,8 +42,9 @@ services:
       context: .
       dockerfile: frontend/Dockerfile
     ports:
-      - '3000:3000'
+      - '80:80'
     depends_on:
       - backend
     environment:
       BACKEND_URL: "http://backend:8000/api"
+      WEB_SOCKET_URL: "http://backend:8000/ws"

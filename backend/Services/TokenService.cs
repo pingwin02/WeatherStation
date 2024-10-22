@@ -1,18 +1,18 @@
 using System.Numerics;
+using backend.Configuration;
 using Microsoft.Extensions.Options;
 using Nethereum.ABI.FunctionEncoding.Attributes;
 using Nethereum.Contracts;
 using Nethereum.Util;
 using Nethereum.Web3;
 using Nethereum.Web3.Accounts;
-using WeatherStationBackend.Configuration;
 
-namespace WeatherStationBackend.Services;
+namespace backend.Services;
 
 [Function("transfer", "bool")]
 public class TransferFunction : FunctionMessage
 {
-    [Parameter("address", "_to")] public string To { get; set; }
+    [Parameter("address", "_to")] public string To { get; set; } = null!;
 
     [Parameter("uint256", "_value", 2)] public BigInteger TokenAmount { get; set; }
 }

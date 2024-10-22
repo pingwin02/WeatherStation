@@ -1,6 +1,6 @@
 using System.Reflection;
-using WeatherStationBackend.Configuration;
-using WeatherStationBackend.Services;
+using backend.Configuration;
+using backend.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -35,6 +35,17 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        policy =>
+        {
+            policy.AllowAnyOrigin()
+                .AllowAnyHeader()
+                .AllowAnyMethod();
+        });
+});
+
 builder.Services.AddControllers()
     .AddJsonOptions(
         options => options.JsonSerializerOptions.PropertyNamingPolicy = null);
@@ -52,6 +63,8 @@ var app = builder.Build();
 app.UseCors("AllowAllOrigins");
 
 app.UseRouting();
+
+app.UseWebSockets();
 
 app.UseSwagger();
 app.UseSwaggerUI(c =>

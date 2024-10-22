@@ -1,4 +1,4 @@
-﻿namespace WeatherStationBackend.Models;
+﻿namespace backend.Models;
 
 public enum SensorType
 {
